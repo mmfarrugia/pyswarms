@@ -4,8 +4,10 @@ r"""
 A general Particle Swarm Optimization (general PSO) algorithm.
 
 It takes a set of candidate solutions, and tries to find the best
-solution using a position-velocity update method. Uses a user specified
-topology.
+solution using a position-velocity update method. This is a dummy for now,
+used so that epsilon_optimizer may inherit from it. Later, it could do 
+general optimization of multiple objective functions. Uses a user 
+specified topology.
 
 The position update can be defined as:
 
@@ -55,6 +57,9 @@ R.C. Eberhart in Particle Swarm Optimization [IJCNN1995]_.
     Proceedings of the IEEE International Joint Conference on Neural
     Networks, 1995, pp. 1942-1948.
 """
+#TODO: perhaps remove this whole thing because, in practice, a sum of objective
+# functions f and g can just be done by making the input objective_func of a 
+# single optimizer equal to f + g. Thus, it is a dummy class for now.
 
 # Import standard library
 import logging
@@ -65,7 +70,7 @@ import multiprocessing as mp
 
 from collections import deque
 
-from ..backend.operators import compute_pbest, compute_objective_function
+from ..backend.operators import compute_pbest, compute_objective_function, compute_objective_functions
 from ..backend.topology import Topology
 from ..backend.handlers import BoundaryHandler, VelocityHandler, OptionsHandler
 from ..base import SwarmOptimizer
@@ -195,7 +200,7 @@ class GeneralOptimizerPSO(SwarmOptimizer):
         self.name = __name__
 
     def optimize(
-        self, objective_func, iters, n_processes=None, verbose=True, **kwargs
+        self, objective_funcs, iters, n_processes=None, verbose=True, **kwargs
     ):
         """Optimize the swarm for a number of iterations
 
@@ -204,8 +209,8 @@ class GeneralOptimizerPSO(SwarmOptimizer):
 
         Parameters
         ----------
-        objective_func : callable
-            objective function to be evaluated
+        objective_funcs : array of callable
+            objective functions to be evaluated
         iters : int
             number of iterations
         n_processes : int
@@ -244,7 +249,8 @@ class GeneralOptimizerPSO(SwarmOptimizer):
         for i in self.rep.pbar(iters, self.name) if verbose else range(iters):
             # Compute cost for current position and personal best
             # fmt: off
-            self.swarm.current_cost = compute_objective_function(self.swarm, objective_func, pool=pool, **kwargs)
+            #TODO: decide how to deal with this later, but it is a dummy
+            self.swarm.current_cost = compute_objective_functions(self.swarm, objective_funcs, pool=pool, **kwargs)
             self.swarm.pbest_pos, self.swarm.pbest_cost = compute_pbest(self.swarm)
             best_cost_yet_found = self.swarm.best_cost
             # fmt: on
