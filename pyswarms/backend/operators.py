@@ -243,3 +243,41 @@ def compute_objective_function(swarm, objective_func, pool=None, **kwargs):
             np.array_split(swarm.position, pool._processes),
         )
         return np.concatenate(results)
+
+
+def compute_objective_functions(swarm, objective_funcs, pool=None, **kwargs):
+    """Evaluate particles using multiple objective functions
+    
+    Computes multiple objective functions by calling compute_objective_function
+    on each objective_func in objective_funcs
+
+    Note that arguments for all objective functions come from the same kwargs
+    dictionary.
+
+    If a pool is passed, then the evaluation of the particles is done in
+    parallel using multiple processes by passing the pool argument to
+    compute_objective_func.
+
+    Parameters
+    ----------
+    swarm : pyswarms.backend.swarms.Swarm
+        a Swarm instance
+    objective_funcs : array of functions
+        objective functions to be evaluated
+    pool: multiprocessing.Pool
+        multiprocessing.Pool to be used for parallel particle evaluation
+    kwargs : dict
+        arguments for the objective functions
+
+    Returns
+    -------
+    costs : dict
+        Cost-matrix dictionary for the given swarm
+            key : objective_func
+            value : cost-matrix for the given swarm
+    """
+
+    costs = {}
+    for objective_func in objective_funcs:
+        costs[objective_func] = compute_objective_function(swarm, objective_func, pool, kwargs)
+    return costs
