@@ -281,3 +281,7 @@ def compute_objective_functions(swarm, objective_funcs, pool=None, **kwargs):
     for objective_func in objective_funcs:
         costs[objective_func] = compute_objective_function(swarm, objective_func, pool, kwargs)
     return costs
+
+#TODO: fill this out according to framework
+def epsilon_comparison():
+    raise NotImplemented()
