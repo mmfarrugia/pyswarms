@@ -13,6 +13,7 @@ import logging
 
 # Import modules
 import numpy as np
+from pyswarms.backend.swarms import ConstrainedSwarm
 
 from ..utils.reporter import Reporter
 from .handlers import BoundaryHandler, VelocityHandler
@@ -62,6 +63,7 @@ def compute_pbest(swarm):
     try:
         # Infer dimensions from positions
         dimensions = swarm.dimensions
+        
         # Create a 1-D and 2-D mask based from comparisons
         mask_cost = swarm.current_cost < swarm.pbest_cost
         mask_pos = np.repeat(mask_cost[:, np.newaxis], dimensions, axis=1)
@@ -128,17 +130,30 @@ def compute_velocity(swarm, clamp, vh, bounds=None):
         c1 = swarm.options["c1"]
         c2 = swarm.options["c2"]
         w = swarm.options["w"]
-        # Compute for cognitive and social terms
-        cognitive = (
+        # Compute for cognitive and social terms, constraints handled differently
+        if swarm is ConstrainedSwarm:
+            
+            cognitive = (
             c1
             * np.random.uniform(0, 1, swarm_size)
-            * (swarm.pbest_pos - swarm.position)
-        )
-        social = (
-            c2
-            * np.random.uniform(0, 1, swarm_size)
-            * (swarm.best_pos - swarm.position)
-        )
+            * (swarm.pbest_merged - swarm.position)
+            )
+            social = (
+                c2
+                * np.random.uniform(0, 1, swarm_size)
+                * (swarm.best_merged - swarm.position)
+            )
+        else:
+            cognitive = (
+                c1
+                * np.random.uniform(0, 1, swarm_size)
+                * (swarm.pbest_pos - swarm.position)
+            )
+            social = (
+                c2
+                * np.random.uniform(0, 1, swarm_size)
+                * (swarm.best_pos - swarm.position)
+            )
         # Compute temp velocity (subject to clamping if possible)
         temp_velocity = (w * swarm.velocity) + cognitive + social
         updated_velocity = vh(
@@ -243,6 +258,56 @@ def compute_objective_function(swarm, objective_func, pool=None, **kwargs):
             np.array_split(swarm.position, pool._processes),
         )
         return np.concatenate(results)
+    
+#TODO another option for constraints, call it something else for now but could later replace the normal one
+def compute_constrained_cost(swarm, objective_func, constraint_handler, pool=None, **kwargs):
+    """Evaluate particles using the objective function
+
+    This method evaluates each particle in the swarm according to the objective
+    function passed.
+
+    If a pool is passed, then the evaluation of the particles is done in
+    parallel using multiple processes.
+
+    Parameters
+    ----------
+    swarm : pyswarms.backend.swarms.Swarm
+        a Swarm instance
+    objective_func : function
+        objective function to be evaluated
+    pool: multiprocessing.Pool
+        multiprocessing.Pool to be used for parallel particle evaluation
+    kwargs : dict
+        arguments for the objective function
+
+    Returns
+    -------
+    numpy.ndarray
+        Cost-matrix for the given swarm
+    """
+    try:
+        temp_cost = swarm.current_cost.copy()
+
+        if constraint_handler is not None:
+            temp_cost = constraint_handler()
+
+        amended_cost = temp_cost
+    except AttributeError:
+        rep.logger.exception(
+            "Please pass a Swarm class. You passed {}".format(type(swarm))
+        )
+        raise
+    else:
+        return amended_cost
+
+    if pool is None:
+        return objective_func(swarm.position, **kwargs)
+    else:
+        results = pool.map(
+            partial(objective_func, **kwargs),
+            np.array_split(swarm.position, pool._processes),
+        )
+        return np.concatenate(results)
 
 
 def compute_objective_functions(swarm, objective_funcs, pool=None, **kwargs):
@@ -282,6 +347,96 @@ def compute_objective_functions(swarm, objective_funcs, pool=None, **kwargs):
         costs[objective_func] = compute_objective_function(swarm, objective_func, pool, kwargs)
     return costs
 
-#TODO: fill this out according to framework
-def epsilon_comparison():
-    raise NotImplemented()
+def compute_constraint_function(swarm, constraint_func, pool=None, **kwargs):
+    """Evaluate particles using the constraint function
+
+    This method evaluates each particle in the swarm according to the constraint
+    function passed.
+
+    If a pool is passed, then the evaluation of the particles is done in
+    parallel using multiple processes.
+
+    Note: This is fundamentally the same as compute_objective_function, but it does help
+    delineate the two as this function can be called within the ConstraintHandler
+
+    Parameters
+    ----------
+    swarm : pyswarms.backend.swarms.Swarm
+        a Swarm instance
+    objective_func : function
+        objective function to be evaluated
+    pool: multiprocessing.Pool
+        multiprocessing.Pool to be used for parallel particle evaluation
+    kwargs : dict
+        arguments for the objective function
+
+    Returns
+    -------
+    numpy.ndarray
+        Cost-matrix for the given swarm
+    """
+    if pool is None:
+        return constraint_func(swarm.position, **kwargs)
+    else:
+        results = pool.map(
+            partial(constraint_func, **kwargs),
+            np.array_split(swarm.position, pool._processes),
+        )
+        return np.concatenate(results)
+    
+def compute_pbest_constraints(swarm):
+    """Update the personal best score of a swarm instance
+
+    You can use this method to update your personal best positions.
+
+    .. code-block:: python
+
+        import pyswarms.backend as P
+        from pyswarms.backend.swarms import Swarm
+
+        my_swarm = P.create_swarm(n_particles, dimensions)
+
+        # Inside the for-loop...
+        for i in range(iters):
+            # It updates the swarm internally
+            my_swarm.pbest_pos, my_swarm.pbest_cost = P.update_pbest(my_swarm)
+
+    It updates your :code:`current_pbest` with the personal bests acquired by
+    comparing the (1) cost of the current positions and the (2) personal
+    bests your swarm has attained.
+
+    If the cost of the current position is less than the cost of the personal
+    best, then the current position replaces the previous personal best
+    position.
+
+    Parameters
+    ----------
+    swarm : pyswarms.backend.swarm.Swarm
+        a Swarm instance
+
+    Returns
+    -------
+    numpy.ndarray
+        New personal best positions of shape :code:`(n_particles, n_dimensions)`
+    numpy.ndarray
+        New personal best costs of shape :code:`(n_particles,)`
+    """
+    try:
+        # Infer dimensions from positions
+        dimensions = swarm.dimensions
+        
+        # Create a 1-D and 2-D mask based from comparisons
+        mask_violation = swarm.current_violation < swarm.pbest_violation
+        mask_pos = np.repeat(mask_violation[:, np.newaxis], dimensions, axis=1)
+        # Apply masks
+        new_pbest_pos = np.where(~mask_pos, swarm.pbest_violation_pos, swarm.position)
+        new_pbest_violation = np.where(
+            ~mask_violation, swarm.pbest_violation, swarm.current_violation
+        )
+    except AttributeError:
+        rep.logger.exception(
+            "Please pass a ConstrainedSwarm class. You passed {}".format(type(swarm))
+        )
+        raise
+    else:
+        return (new_pbest_pos, new_pbest_violation)

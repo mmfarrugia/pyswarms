@@ -16,7 +16,7 @@ import logging
 import numpy as np
 
 from ..utils.reporter import Reporter
-from .swarms import Swarm
+from .swarms import ConstrainedSwarm, Swarm
 
 rep = Reporter(logger=logging.getLogger(__name__))
 
@@ -91,7 +91,7 @@ def generate_swarm(
         raise
     else:
         return pos
-
+    
 
 def generate_discrete_swarm(
     n_particles, dimensions, binary=False, init_pos=None
@@ -243,3 +243,59 @@ def create_swarm(
 
     velocity = generate_velocity(n_particles, dimensions, clamp=clamp)
     return Swarm(position, velocity, options=options)
+
+#TODO
+def create_epsilon_swarm(
+    n_particles,
+    dimensions,
+    discrete=False,
+    binary=False,
+    options={},
+    bounds=None,
+    center=1.0,
+    init_pos=None,
+    clamp=None,
+):
+    """Abstract the generate_epsilon_swarm() and generate_velocity() methods
+
+    Parameters
+    ----------
+    n_particles : int
+        number of particles to be generated in the swarm.
+    dimensions: int
+        number of dimensions to be generated in the swarm
+    discrete : bool
+        Creates a discrete swarm. Default is `False`
+    options : dict, optional
+        Swarm options, for example, c1, c2, etc.
+    binary : bool
+        generate a binary matrix, Default is `False`
+    bounds : tuple of np.ndarray or list
+        a tuple of size 2 where the first entry is the minimum bound while
+        the second entry is the maximum bound. Each array must be of shape
+        :code:`(dimensions,)`. Default is `None`
+    center : numpy.ndarray, optional
+        a list of initial positions for generating the swarm. Default is `1`
+    init_pos : numpy.ndarray, optional
+        option to explicitly set the particles' initial positions. Set to
+        :code:`None` if you wish to generate the particles randomly.
+    clamp : tuple of floats, optional
+        a tuple of size 2 where the first entry is the minimum velocity
+        and the second entry is the maximum velocity. It
+        sets the limits for velocity clamping.
+
+    Returns
+    -------
+    pyswarms.backend.swarms.Swarm
+        a Swarm class
+    """
+    position = generate_swarm(
+        n_particles,
+        dimensions,
+        bounds=bounds,
+        center=center,
+        init_pos=init_pos,
+    )
+
+    velocity = generate_velocity(n_particles, dimensions, clamp=clamp)
+    return ConstrainedSwarm(position, velocity, options=options)

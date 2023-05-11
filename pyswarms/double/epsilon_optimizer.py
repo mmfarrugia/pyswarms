@@ -66,17 +66,18 @@ import numpy as np
 import multiprocessing as mp
 
 from collections import deque
+from pyswarms.backend.generators import create_epsilon_swarm
 
 from pyswarms.double.general_optimizer import GeneralOptimizerPSO
 
-from ..backend.operators import compute_pbest, compute_objective_function, compute_objective_functions
+from ..backend.operators import compute_pbest, compute_objective_function, compute_epsilon_functions, compute_constraint_function, compute_pbest_constraints
 from ..backend.topology import Topology
-from ..backend.handlers import BoundaryHandler, VelocityHandler, OptionsHandler
+from ..backend.handlers import BoundaryHandler, ConstraintHandler, VelocityHandler, OptionsHandler
 from ..base import SwarmOptimizer
 from ..utils.reporter import Reporter
 
 
-class EpsilonOptimizerPSO(SwarmOptimizer):
+class ConstrainedOptimizerPSO(SwarmOptimizer):
     def __init__(
         self,
         n_particles,
@@ -88,12 +89,13 @@ class EpsilonOptimizerPSO(SwarmOptimizer):
         bh_strategy="periodic",
         velocity_clamp=None,
         vh_strategy="unmodified",
+        ch_strategy=None,
         center=1.00,
         ftol=-np.inf,
         ftol_iter=1,
         init_pos=None,
     ):
-        """Initialize the swarm
+        """Initialize the constrained swarm
 
         Attributes
         ----------
@@ -196,21 +198,25 @@ class EpsilonOptimizerPSO(SwarmOptimizer):
         self.bh = BoundaryHandler(strategy=bh_strategy)
         self.vh = VelocityHandler(strategy=vh_strategy)
         self.oh = OptionsHandler(strategy=oh_strategy)
+        self.ch = ConstraintHandler(strategy=ch_strategy)
         self.name = __name__
 
 #TODO: continue from here
     def optimize(
-        self, objective_funcs, iters, n_processes=None, verbose=True, **kwargs
+        self, objective_func, constraint_func, iters, n_processes=None, verbose=True, **kwargs
     ):
         """Optimize the swarm for a number of iterations
 
         Performs the optimization to evaluate the objective
-        function :code:`f` for a number of iterations :code:`iter.`
+        function :code:`f` and constraint violation :code: `g`
+        for a number of iterations :code:`iter.`
 
         Parameters
         ----------
         objective_func : callable
             objective function to be evaluated
+        constraint_func : callable
+            constraint function to be evaluated
         iters : int
             number of iterations
         n_processes : int
@@ -240,6 +246,7 @@ class EpsilonOptimizerPSO(SwarmOptimizer):
         # Populate memory of the handlers
         self.bh.memory = self.swarm.position
         self.vh.memory = self.swarm.position
+        self.ch.memory = self.swarm.position
 
         # Setup Pool of processes for parallel evaluation
         pool = None if n_processes is None else mp.Pool(n_processes)
@@ -250,11 +257,26 @@ class EpsilonOptimizerPSO(SwarmOptimizer):
             # Compute cost for current position and personal best
             # fmt: off
             self.swarm.current_cost = compute_objective_function(self.swarm, objective_func, pool=pool, **kwargs)
+            self.swarm.current_violation = compute_constraint_function(self.swarm, constraint_func, pool, **kwargs)
+            mask_epsilon = self.swarm.current_violation <= np.zeros(self.swarm.n_particles)
+            self.swarm.costs_merged = np.where(mask_epsilon, self.swarm.current_cost, self.swarm.current_violation)
+            #TODO: use a mask to put cost history as correct cost from objective or constraint
+            # Compute personal best cost and position for each particle
             self.swarm.pbest_pos, self.swarm.pbest_cost = compute_pbest(self.swarm)
+            # Compute personal best violation and position for each particle
+            self.swarm.pbest_violation_pos, self.swarm.pbest_violation = compute_pbest_constraints(self.swarm)
+            self.swarm.pbest_merged = np.where(mask_epsilon, self.swarm.pbest_cost, self.swarm.pbest_violation)
+            self.swarm.pbest_merged_pos = np.where(mask_epsilon, self.swarm.pbest_pos, self.swarm.pbest_violation_pos)
+
             best_cost_yet_found = self.swarm.best_cost
+            best_violation_yet_found = self.swarm.best_violation
             # fmt: on
             # Update swarm
             self.swarm.best_pos, self.swarm.best_cost = self.top.compute_gbest(
+                self.swarm, **self.options
+            )
+            #TODO continue
+            self.swarm.best_violation_pos, self.swarm.best_violation = self.top.compute_gbest_violation(
                 self.swarm, **self.options
             )
             # Print to console
@@ -307,3 +329,45 @@ class EpsilonOptimizerPSO(SwarmOptimizer):
         if n_processes is not None:
             pool.close()
         return (final_best_cost, final_best_pos)
+    
+    def reset(self):
+        """Reset the attributes of the optimizer
+
+        All variables/atributes that will be re-initialized when this
+        method is defined here. Note that this method
+        can be called twice: (1) during initialization, and (2) when
+        this is called from an instance.
+
+        It is good practice to keep the number of resettable
+        attributes at a minimum. This is to prevent spamming the same
+        object instance with various swarm definitions.
+
+        Normally, swarm definitions are as atomic as possible, where
+        each type of swarm is contained in its own instance. Thus, the
+        following attributes are the only ones recommended to be
+        resettable:
+
+        * Swarm position matrix (self.pos)
+        * Velocity matrix (self.pos)
+        * Best scores and positions (gbest_cost, gbest_pos, etc.)
+
+        Otherwise, consider using positional arguments.
+        """
+        # Initialize history lists
+        self.cost_history = []
+        self.violation_history = [] #added
+        self.mean_pbest_history = []
+        self.mean_neighbor_history = []
+        self.pos_history = []
+        self.velocity_history = []
+
+        # Initialize the swarm
+        self.swarm = create_epsilon_swarm(
+            n_particles=self.n_particles,
+            dimensions=self.dimensions,
+            bounds=self.bounds,
+            center=self.center,
+            init_pos=self.init_pos,
+            clamp=self.velocity_clamp,
+            options=self.options,
+        )
