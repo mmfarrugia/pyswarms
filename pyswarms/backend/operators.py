@@ -136,12 +136,12 @@ def compute_velocity(swarm, clamp, vh, bounds=None):
             cognitive = (
             c1
             * np.random.uniform(0, 1, swarm_size)
-            * (swarm.pbest_merged - swarm.position)
+            * (swarm.pbest_merged_pos - swarm.position)
             )
             social = (
                 c2
                 * np.random.uniform(0, 1, swarm_size)
-                * (swarm.best_merged - swarm.position)
+                * (swarm.best_merged_pos - swarm.position)
             )
         else:
             cognitive = (

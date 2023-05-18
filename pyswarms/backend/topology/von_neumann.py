@@ -48,6 +48,36 @@ class VonNeumann(Ring):
         """
         k = VonNeumann.delannoy(swarm.dimensions, r)
         return super(VonNeumann, self).compute_gbest(swarm, p, k)
+    
+    # TODO
+    def compute_gbest_violation(self, swarm, p, r, **kwargs):
+        """Updates the global best using a neighborhood approach
+
+        The Von Neumann topology inherits from the Ring topology and uses
+        the same approach to calculate the global best. The number of
+        neighbors is determined by the dimension and the range. This
+        topology is always a :code:`static` topology.
+
+        Parameters
+        ----------
+        swarm : pyswarms.backend.swarms.Swarm
+            a Swarm instance
+        r : int
+            range of the Von Neumann topology
+        p: int {1,2}
+            the Minkowski p-norm to use. 1 is the
+            sum-of-absolute values (or L1 distance) while 2 is
+            the Euclidean (or L2) distance.
+
+        Returns
+        -------
+        numpy.ndarray
+            Best position of shape :code:`(n_dimensions, )`
+        float
+            Best cost
+        """
+        k = VonNeumann.delannoy(swarm.dimensions, r)
+        return super(VonNeumann, self).compute_gbest_violation(swarm, p, k)
 
     @staticmethod
     def delannoy(d, r):

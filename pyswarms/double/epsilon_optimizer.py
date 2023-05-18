@@ -65,7 +65,7 @@ import logging
 import numpy as np
 import multiprocessing as mp
 
-from collections import deque
+from collections import deque, namedtuple
 from pyswarms.backend.generators import create_epsilon_swarm
 
 from pyswarms.double.general_optimizer import GeneralOptimizerPSO
@@ -184,6 +184,19 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             ftol_iter=ftol_iter,
             init_pos=init_pos,
         )
+        self.ToHistory = namedtuple(
+            "ToHistory",
+            [
+                "best_cost",
+                "mean_pbest_cost",
+                "mean_neighbor_cost",
+                "best_violation",
+                "mean_pbest_violation",
+                "mean_neighbor_violation",
+                "position",
+                "velocity",
+            ],
+        )
         if oh_strategy is None:
             oh_strategy = {}
         # Initialize logger
@@ -200,6 +213,29 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
         self.oh = OptionsHandler(strategy=oh_strategy)
         self.ch = ConstraintHandler(strategy=ch_strategy)
         self.name = __name__
+
+    def _populate_history(self, hist):
+        """Populate all history lists
+
+        The :code:`cost_history`, :code:`mean_pbest_history`, and
+        :code:`neighborhood_best` is expected to have a shape of
+        :code:`(iters,)`,on the other hand, the :code:`pos_history`
+        and :code:`velocity_history` are expected to have a shape of
+        :code:`(iters, n_particles, dimensions)`
+
+        Parameters
+        ----------
+        hist : collections.namedtuple
+            Must be of the same type as self.ToHistory
+        """
+        self.cost_history.append(hist.best_cost)
+        self.violation_history.append(hist.best_violation)
+        self.mean_pbest_history.append(hist.mean_pbest_cost)
+        self.mean_pbest_violation_history.append(hist.mean_pbest_violation)
+        self.mean_neighbor_history.append(hist.mean_neighbor_cost)
+        self.mean_neighbor_violation_history.append(hist.mean_neighbor_violation)
+        self.pos_history.append(hist.position)
+        self.velocity_history.append(hist.velocity)
 
 #TODO: continue from here
     def optimize(
@@ -275,13 +311,19 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             self.swarm.best_pos, self.swarm.best_cost = self.top.compute_gbest(
                 self.swarm, **self.options
             )
-            #TODO continue
             self.swarm.best_violation_pos, self.swarm.best_violation = self.top.compute_gbest_violation(
                 self.swarm, **self.options
             )
+            # Update the merged arrays of best values where the singular best value for cost or violation
+            # is placed at each index based on whether the constraint function is satisfactorily minimized
+            # on a per-particle basis
+            self.swarm.best_merged_pos = np.where(mask_epsilon, self.swarm.best_pos, self.swarm.best_violation_pos)
+            self.swarm.best_merged = np.where(mask_epsilon, self.swarm.best_cost, self.swarm.best_violation)
+
             # Print to console
             if verbose:
                 self.rep.hook(best_cost=self.swarm.best_cost)
+            # TODO might need to add a violation_hist, already have variable for violation_history
             hist = self.ToHistory(
                 best_cost=self.swarm.best_cost,
                 mean_pbest_cost=np.mean(self.swarm.pbest_cost),
@@ -357,7 +399,9 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
         self.cost_history = []
         self.violation_history = [] #added
         self.mean_pbest_history = []
+        self.mean_pbest_violation_history = []
         self.mean_neighbor_history = []
+        self.mean_neighbor_violation_history = []
         self.pos_history = []
         self.velocity_history = []
 

@@ -219,7 +219,14 @@ class ConstrainedSwarm(Swarm):
         default=np.array([]),
         validator=instance_of(np.ndarray),
     )
+    # TODO
     best_merged = attrib(
+        type=np.ndarray,
+        default=np.array([]),
+        validator=instance_of(np.ndarray),
+    )
+    # TODO
+    best_merged_pos = attrib(
         type=np.ndarray,
         default=np.array([]),
         validator=instance_of(np.ndarray),

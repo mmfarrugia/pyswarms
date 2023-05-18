@@ -79,12 +79,11 @@ class Star(Topology):
         else:
             return (best_pos, best_cost)
         
-    #TODO continue
     def compute_gbest_violation(self, swarm, **kwargs):
         """Update the global best using a star topology
 
-        This method takes the current pbest_pos and pbest_cost, then returns
-        the minimum cost and position from the matrix.
+        This method takes the current pbest_violation_pos and pbest_violation, then returns
+        the minimum violation and position from the matrix.
 
         .. code-block:: python
 
@@ -95,8 +94,8 @@ class Star(Topology):
             my_swarm = P.create_swarm(n_particles, dimensions)
             my_topology = Star()
 
-            # Update best_cost and position
-            swarm.best_pos, swarm.best_cost = my_topology.compute_gbest(my_swarm)
+            # Update best_violation and position
+            swarm.best_violation_pos, swarm.best_violation = my_topology.compute_gbest_violation(my_swarm)
 
         Parameters
         ----------
@@ -108,28 +107,28 @@ class Star(Topology):
         numpy.ndarray
             Best position of shape :code:`(n_dimensions, )`
         float
-            Best cost
+            Best violation
         """
         try:
             if self.neighbor_idx is None:
                 self.neighbor_idx = np.tile(
                     np.arange(swarm.n_particles), (swarm.n_particles, 1)
                 )
-            if np.min(swarm.pbest_cost) < swarm.best_cost:
+            if np.min(swarm.pbest_violation) < swarm.best_violation:
                 # Get the particle position with the lowest pbest_cost
                 # and assign it to be the best_pos
-                best_pos = swarm.pbest_pos[np.argmin(swarm.pbest_cost)]
-                best_cost = np.min(swarm.pbest_cost)
+                best_violation_pos = swarm.pbest_violation_pos[np.argmin(swarm.pbest_violation)]
+                best_violation = np.min(swarm.pbest_violation)
             else:
                 # Just get the previous best_pos and best_cost
-                best_pos, best_cost = swarm.best_pos, swarm.best_cost
+                best_violation_pos, best_violation = swarm.best_violation_pos, swarm.best_violation
         except AttributeError:
             self.rep.logger.exception(
-                "Please pass a Swarm class. You passed {}".format(type(swarm))
+                "Please pass a ConstrainedSwarm class. You passed {}".format(type(swarm))
             )
             raise
         else:
-            return (best_pos, best_cost)
+            return (best_violation_pos, best_violation)
 
     def compute_velocity(
         self,
