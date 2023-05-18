@@ -89,6 +89,61 @@ class Ring(Topology):
             raise
         else:
             return (best_pos, best_cost)
+        
+    def compute_gbest_violation(self, swarm, p, k, **kwargs):
+        """Update the global best using a ring-like neighborhood approach
+
+        This uses the cKDTree method from :code:`scipy` to obtain the nearest
+        neighbors.
+
+        Parameters
+        ----------
+        swarm : pyswarms.backend.swarms.Swarm
+            a Swarm instance
+        p: int {1,2}
+            the Minkowski p-norm to use. 1 is the
+            sum-of-absolute values (or L1 distance) while 2 is
+            the Euclidean (or L2) distance.
+        k : int
+            number of neighbors to be considered. Must be a
+            positive integer less than :code:`n_particles`
+
+        Returns
+        -------
+        numpy.ndarray
+            Best position of shape :code:`(n_dimensions, )`
+        float
+            Best cost
+        """
+        try:
+            # Check if the topology is static or not and assign neighbors
+            if (self.static and self.neighbor_idx is None) or not self.static:
+                # Obtain the nearest-neighbors for each particle
+                tree = cKDTree(swarm.position)
+                _, self.neighbor_idx = tree.query(swarm.position, p=p, k=k)
+
+            # Map the computed costs to the neighbour indices and take the
+            # argmin. If k-neighbors is equal to 1, then the swarm acts
+            # independently of each other.
+            if k == 1:
+                # The minimum index is itself, no mapping needed.
+                self.neighbor_idx = self.neighbor_idx[:, np.newaxis]
+                best_neighbor = np.arange(swarm.n_particles)
+            else:
+                idx_min = swarm.pbest_violation[self.neighbor_idx].argmin(axis=1)
+                best_neighbor = self.neighbor_idx[
+                    np.arange(len(self.neighbor_idx)), idx_min
+                ]
+            # Obtain best cost and position
+            best_violation = np.min(swarm.pbest_violation[best_neighbor])
+            best_violation_pos = swarm.pbest_violation_pos[best_neighbor]
+        except AttributeError:
+            self.rep.logger.exception(
+                "Please pass a ConstrainedSwarm class. You passed {}".format(type(swarm))
+            )
+            raise
+        else:
+            return (best_violation_pos, best_violation)
 
     def compute_velocity(
         self,
