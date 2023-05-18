@@ -326,8 +326,11 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             # TODO might need to add a violation_hist, already have variable for violation_history
             hist = self.ToHistory(
                 best_cost=self.swarm.best_cost,
+                best_violation=self.swarm.best_violation,
                 mean_pbest_cost=np.mean(self.swarm.pbest_cost),
-                mean_neighbor_cost=self.swarm.best_cost,
+                mean_pbest_violation=np.mean(self.swarm.pbest_violation),
+                mean_neighbor_cost=self.swarm.best_cost, # TODO ask maintainer about this, because it not the mean...
+                mean_neighbor_violation=self.swarm.best_violation,
                 position=self.swarm.position,
                 velocity=self.swarm.velocity,
             )
