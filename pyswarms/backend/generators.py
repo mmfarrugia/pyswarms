@@ -244,7 +244,6 @@ def create_swarm(
     velocity = generate_velocity(n_particles, dimensions, clamp=clamp)
     return Swarm(position, velocity, options=options)
 
-#TODO
 def create_epsilon_swarm(
     n_particles,
     dimensions,

@@ -49,9 +49,8 @@ class VonNeumann(Ring):
         k = VonNeumann.delannoy(swarm.dimensions, r)
         return super(VonNeumann, self).compute_gbest(swarm, p, k)
     
-    # TODO
     def compute_gbest_violation(self, swarm, p, r, **kwargs):
-        """Updates the global best using a neighborhood approach
+        """Updates the global best violation using a neighborhood approach
 
         The Von Neumann topology inherits from the Ring topology and uses
         the same approach to calculate the global best. The number of
@@ -61,7 +60,7 @@ class VonNeumann(Ring):
         Parameters
         ----------
         swarm : pyswarms.backend.swarms.Swarm
-            a Swarm instance
+            a ConstrainedSwarm instance
         r : int
             range of the Von Neumann topology
         p: int {1,2}
@@ -74,7 +73,7 @@ class VonNeumann(Ring):
         numpy.ndarray
             Best position of shape :code:`(n_dimensions, )`
         float
-            Best cost
+            Best violation
         """
         k = VonNeumann.delannoy(swarm.dimensions, r)
         return super(VonNeumann, self).compute_gbest_violation(swarm, p, k)

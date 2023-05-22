@@ -59,7 +59,10 @@ R.C. Eberhart in Particle Swarm Optimization [IJCNN1995]_.
 """
 #TODO: perhaps remove this whole thing because, in practice, a sum of objective
 # functions f and g can just be done by making the input objective_func of a 
-# single optimizer equal to f + g. Thus, it is a dummy class for now.
+# single optimizer equal to f + g. Thus, it is a dummy class to serve as
+# a jumping-off point for the constrained implementation for now but could
+# someday serve as a point from which others could implement other multi-objective
+# optimizations etc.
 
 # Import standard library
 import logging
@@ -249,7 +252,7 @@ class GeneralOptimizerPSO(SwarmOptimizer):
         for i in self.rep.pbar(iters, self.name) if verbose else range(iters):
             # Compute cost for current position and personal best
             # fmt: off
-            #TODO: decide how to deal with this later, but it is a dummy
+            #TODO: decide how to deal with this later, but it is in a dummy class and dummy method anyway
             self.swarm.current_cost = compute_objective_functions(self.swarm, objective_funcs, pool=pool, **kwargs)
             self.swarm.pbest_pos, self.swarm.pbest_cost = compute_pbest(self.swarm)
             best_cost_yet_found = self.swarm.best_cost

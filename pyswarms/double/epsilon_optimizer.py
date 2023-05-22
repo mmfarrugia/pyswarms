@@ -72,7 +72,7 @@ from pyswarms.double.general_optimizer import GeneralOptimizerPSO
 
 from ..backend.operators import compute_pbest, compute_objective_function, compute_epsilon_functions, compute_constraint_function, compute_pbest_constraints
 from ..backend.topology import Topology
-from ..backend.handlers import BoundaryHandler, ConstraintHandler, VelocityHandler, OptionsHandler
+from ..backend.handlers import BoundaryHandler, VelocityHandler, OptionsHandler
 from ..base import SwarmOptimizer
 from ..utils.reporter import Reporter
 
@@ -211,7 +211,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
         self.bh = BoundaryHandler(strategy=bh_strategy)
         self.vh = VelocityHandler(strategy=vh_strategy)
         self.oh = OptionsHandler(strategy=oh_strategy)
-        self.ch = ConstraintHandler(strategy=ch_strategy)
+        #self.ch = ConstraintHandler(strategy=ch_strategy)
         self.name = __name__
 
     def _populate_history(self, hist):
@@ -237,7 +237,6 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
         self.pos_history.append(hist.position)
         self.velocity_history.append(hist.velocity)
 
-#TODO: continue from here
     def optimize(
         self, objective_func, constraint_func, iters, n_processes=None, verbose=True, **kwargs
     ):
@@ -245,7 +244,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
 
         Performs the optimization to evaluate the objective
         function :code:`f` and constraint violation :code: `g`
-        for a number of iterations :code:`iter.`
+        for a number of iterations :code:`iters.`
 
         Parameters
         ----------
@@ -282,7 +281,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
         # Populate memory of the handlers
         self.bh.memory = self.swarm.position
         self.vh.memory = self.swarm.position
-        self.ch.memory = self.swarm.position
+        #self.ch.memory = self.swarm.position
 
         # Setup Pool of processes for parallel evaluation
         pool = None if n_processes is None else mp.Pool(n_processes)
@@ -296,10 +295,10 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             self.swarm.current_violation = compute_constraint_function(self.swarm, constraint_func, pool, **kwargs)
             mask_epsilon = self.swarm.current_violation <= np.zeros(self.swarm.n_particles)
             self.swarm.costs_merged = np.where(mask_epsilon, self.swarm.current_cost, self.swarm.current_violation)
-            #TODO: use a mask to put cost history as correct cost from objective or constraint
             # Compute personal best cost and position for each particle
             self.swarm.pbest_pos, self.swarm.pbest_cost = compute_pbest(self.swarm)
-            # Compute personal best violation and position for each particle
+            # Compute personal best violation and position for each particle, merge cost and violation per particle
+            # based on satisfaction of epsilon constraints
             self.swarm.pbest_violation_pos, self.swarm.pbest_violation = compute_pbest_constraints(self.swarm)
             self.swarm.pbest_merged = np.where(mask_epsilon, self.swarm.pbest_cost, self.swarm.pbest_violation)
             self.swarm.pbest_merged_pos = np.where(mask_epsilon, self.swarm.pbest_pos, self.swarm.pbest_violation_pos)
@@ -323,7 +322,6 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             # Print to console
             if verbose:
                 self.rep.hook(best_cost=self.swarm.best_cost)
-            # TODO might need to add a violation_hist, already have variable for violation_history
             hist = self.ToHistory(
                 best_cost=self.swarm.best_cost,
                 best_violation=self.swarm.best_violation,

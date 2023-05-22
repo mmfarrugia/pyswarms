@@ -762,3 +762,194 @@ class OptionsHandler(HandlerMixin):
             raise
         else:
             return new_val
+
+
+# TODO BACKUP commented out, but kept as a backup in case the current architecture extension fails
+# class ConstraintHandler(HandlerMixin):
+#     def __init__(self, strategy):
+#         """A ConstraintHandler class
+
+#         This class offers a way to handle constraints minimization. It contains
+#         methods to idnetify and redirect particles which violate constraints.
+#         Following strategies are available for the handling:
+
+#         * Epsilon:
+#             When particles do not satisfy constraints, they are moved to satisfy 
+#             them. Particles which do satisfy constraints are left alone to follow
+#             the same steps as single-objective unconstrained PSO. This strategy
+#             is based on work from Takahama et al., Lect. Notes in Artif. Int., 2005
+#         * Custom:
+#             Make your own strategy methods for constrained optimization. In theory,
+#             this could be used to conditionally switch between optimization functions
+#             in multi-objective optimization as well.
+
+#         The ConstraintHandler can be called as a function to use the strategy and 
+#         constraint function that is passed at initialization to handle prioritization
+#         of constraint violation repair.
+#         An example for the usage:
+
+#         .. code-block :: python
+
+#             from pyswarms.backend import operators as op
+#             from pyswarms.backend.handlers import ConstraintHandler
+#             bh = BoundaryHandler(strategy="reflective")
+#             ops.compute_position(swarm, bounds, handler=bh)
+
+#         By passing the handler, the :func:`compute_position()` function now has
+#         the ability to reset the particles by calling the :code:`ConstraintHandler`
+#         inside.
+
+#         Attributes
+#         ----------
+#         strategy : str
+#             The strategy to use. To see all available strategies,
+#             call :code:`ConstraintHandler.strategies`
+#         """
+#         self.strategy = strategy
+#         self.strategies = self._get_all_strategies()
+#         self.rep = Reporter(logger=logging.getLogger(__name__))
+#         self.memory = None
+
+#     def __call__(self, position, constraint_func, **kwargs):
+#         """Apply the selected strategy to the position-matrix given the bounds
+
+#         Parameters
+#         ----------
+#         position : numpy.ndarray
+#             The swarm position to be handled
+#         kwargs : dict
+
+#         Returns
+#         -------
+#         numpy.ndarray
+#             the adjusted positions of the swarm
+#         """
+#         try:
+#             new_position = self.strategies[self.strategy](
+#                 position, **kwargs
+#             )
+#         except KeyError:
+#             message = "Unrecognized strategy: {}. Choose one among: " + str(
+#                 [strat for strat in self.strategies.keys()]
+#             )
+#             self.rep.logger.exception(message.format(self.strategy))
+#             raise
+#         else:
+#             return new_position
+
+#     def epsilon(self, position, bounds, **kwargs):
+#         r"""Evaluate constraints
+
+#         This method resets particles that exceed the bounds to the nearest
+#         available boundary. For every axis on which the coordiantes of the particle
+#         surpasses the boundary conditions the coordinate is set to the respective
+#         bound that it surpasses.
+#         The following equation describes this strategy:
+
+#         .. math::
+
+#             x_{i, t, d} = \begin{cases}
+#                                 lb_d & \quad \text{if }x_{i, t, d} < lb_d \\
+#                                 ub_d & \quad \text{if }x_{i, t, d} > ub_d \\
+#                                 x_{i, t, d} & \quad \text{otherwise}
+#                           \end{cases}
+
+#         """
+#         lb, ub = bounds
+#         bool_greater = position > ub
+#         bool_lower = position < lb
+#         new_pos = np.where(bool_lower, lb, position)
+#         new_pos = np.where(bool_greater, ub, new_pos)
+#         return new_pos
+
+#     def reflective(self, position, bounds, **kwargs):
+#         r"""Reflect the particle at the boundary
+
+#         This method reflects the particles that exceed the bounds at the
+#         respective boundary. This means that the amount that the component
+#         which is orthogonal to the exceeds the boundary is mirrored at the
+#         boundary. The reflection is repeated until the position of the particle
+#         is within the boundaries. The following algorithm describes the
+#         behaviour of this strategy:
+
+#         .. math::
+#             :nowrap:
+
+#             \begin{gather*}
+#                 \text{while } x_{i, t, d} \not\in \left[lb_d,\,ub_d\right] \\
+#                 \text{ do the following:}\\
+#                 \\
+#                 x_{i, t, d} =   \begin{cases}
+#                                     2\cdot lb_d - x_{i, t, d} & \quad \text{if } x_{i,
+#                                     t, d} < lb_d \\
+#                                     2\cdot ub_d - x_{i, t, d} & \quad \text{if } x_{i,
+#                                     t, d} > ub_d \\
+#                                     x_{i, t, d} & \quad \text{otherwise}
+#                                 \end{cases}
+#             \end{gather*}
+#         """
+#         lb, ub = bounds
+#         lower_than_bound, greater_than_bound = self._out_of_bounds(
+#             position, bounds
+#         )
+#         new_pos = position
+#         while lower_than_bound[0].size != 0 or greater_than_bound[0].size != 0:
+#             if lower_than_bound[0].size > 0:
+#                 new_pos[lower_than_bound] = (
+#                     2 * lb[lower_than_bound[1]] - new_pos[lower_than_bound]
+#                 )
+#             if greater_than_bound[0].size > 0:
+#                 new_pos[greater_than_bound] = (
+#                     2 * ub[greater_than_bound[1]] - new_pos[greater_than_bound]
+#                 )
+#             lower_than_bound, greater_than_bound = self._out_of_bounds(
+#                 new_pos, bounds
+#             )
+
+#         return new_pos
+
+#     def periodic(self, position, bounds, **kwargs):
+#         r"""Sets the particles a periodic fashion
+
+#         This method resets the particles that exeed the bounds by using the
+#         modulo function to cut down the position. This creates a virtual,
+#         periodic plane which is tiled with the search space.
+#         The following equation describtes this strategy:
+
+#         .. math::
+#             :nowrap:
+
+#             \begin{gather*}
+#             x_{i, t, d} = \begin{cases}
+#                                 ub_d - (lb_d - x_{i, t, d}) \mod s_d & \quad \text{if }x_{i, t, d} < lb_d \\
+#                                 lb_d + (x_{i, t, d} - ub_d) \mod s_d & \quad \text{if }x_{i, t, d} > ub_d \\
+#                                 x_{i, t, d} & \quad \text{otherwise}
+#                           \end{cases}\\
+#             \\
+#             \text{with}\\
+#             \\
+#             s_d = |ub_d - lb_d|
+#             \end{gather*}
+
+#         """
+#         lb, ub = bounds
+#         lower_than_bound, greater_than_bound = self._out_of_bounds(
+#             position, bounds
+#         )
+#         bound_d = np.tile(
+#             np.abs(np.array(ub) - np.array(lb)), (position.shape[0], 1)
+#         )
+#         ub = np.tile(ub, (position.shape[0], 1))
+#         lb = np.tile(lb, (position.shape[0], 1))
+#         new_pos = position
+#         if lower_than_bound[0].size != 0 and lower_than_bound[1].size != 0:
+#             new_pos[lower_than_bound] = ub[lower_than_bound] - np.mod(
+#                 (lb[lower_than_bound] - new_pos[lower_than_bound]),
+#                 bound_d[lower_than_bound],
+#             )
+#         if greater_than_bound[0].size != 0 and greater_than_bound[1].size != 0:
+#             new_pos[greater_than_bound] = lb[greater_than_bound] + np.mod(
+#                 (new_pos[greater_than_bound] - ub[greater_than_bound]),
+#                 bound_d[greater_than_bound],
+#             )
+#         return new_pos

@@ -259,7 +259,8 @@ def compute_objective_function(swarm, objective_func, pool=None, **kwargs):
         )
         return np.concatenate(results)
     
-#TODO another option for constraints, call it something else for now but could later replace the normal one
+#TODO BACKUP another option for constraints, call it something else for now but could later 
+# replace the normal one if the current architecture extension fails
 def compute_constrained_cost(swarm, objective_func, constraint_handler, pool=None, **kwargs):
     """Evaluate particles using the objective function
 
@@ -294,7 +295,7 @@ def compute_constrained_cost(swarm, objective_func, constraint_handler, pool=Non
         amended_cost = temp_cost
     except AttributeError:
         rep.logger.exception(
-            "Please pass a Swarm class. You passed {}".format(type(swarm))
+            "Please pass a ConstrainedSwarm class. You passed {}".format(type(swarm))
         )
         raise
     else:
