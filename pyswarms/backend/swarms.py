@@ -232,7 +232,9 @@ class ConstrainedSwarm(Swarm):
         type=float, default=np.inf, validator=instance_of((int, float))
     )
     best_violation_pos = attrib(
-        type=float, default=np.inf, validator=instance_of((int, float))
+        type=np.ndarray,
+        default=np.array([]),
+        validator=instance_of(np.ndarray),
     )
     current_violation = attrib(
         type=np.ndarray,
