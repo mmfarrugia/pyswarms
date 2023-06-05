@@ -70,7 +70,7 @@ from pyswarms.backend.generators import create_epsilon_swarm
 
 from pyswarms.double.general_optimizer import GeneralOptimizerPSO
 
-from ..backend.operators import compute_pbest, compute_objective_function, compute_epsilon_functions, compute_constraint_function, compute_pbest_constraints
+from ..backend.operators import compute_pbest, compute_objective_function, compute_epsilon_functions, compute_constraint_function, compute_pbest_violation
 from ..backend.topology import Topology
 from ..backend.handlers import BoundaryHandler, VelocityHandler, OptionsHandler
 from ..base import SwarmOptimizer
@@ -299,7 +299,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             self.swarm.pbest_pos, self.swarm.pbest_cost = compute_pbest(self.swarm)
             # Compute personal best violation and position for each particle, merge cost and violation per particle
             # based on satisfaction of epsilon constraints
-            self.swarm.pbest_violation_pos, self.swarm.pbest_violation = compute_pbest_constraints(self.swarm)
+            self.swarm.pbest_violation_pos, self.swarm.pbest_violation = compute_pbest_violation(self.swarm)
             self.swarm.pbest_merged = np.where(mask_epsilon, self.swarm.pbest_cost, self.swarm.pbest_violation)
             self.swarm.pbest_merged_pos = np.where(mask_epsilon, self.swarm.pbest_pos, self.swarm.pbest_violation_pos)
 

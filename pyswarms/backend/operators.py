@@ -385,7 +385,7 @@ def compute_constraint_function(swarm, constraint_func, pool=None, **kwargs):
         )
         return np.concatenate(results)
     
-def compute_pbest_constraints(swarm):
+def compute_pbest_violation(swarm):
     """Update the personal best score of a swarm instance
 
     You can use this method to update your personal best positions.
