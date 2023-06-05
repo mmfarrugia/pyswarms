@@ -82,7 +82,7 @@ class Pyramid(Topology):
                         [
                             index_pointer[indices[i] : indices[i + 1]]
                             for i in range(swarm.n_particles)
-                        ]
+                        ], dtype=object
                     )
 
                 idx_min = np.array(
