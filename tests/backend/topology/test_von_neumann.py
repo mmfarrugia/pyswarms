@@ -39,6 +39,42 @@ class TestVonNeumannTopology(ABCTestTopology):
             pos[np.argmin(cost)] == pytest.approx(expected_pos_2)
         )
 
+    @pytest.mark.parametrize("r", [0, 1])
+    @pytest.mark.parametrize("p", [1, 2])
+    def test_update_gbest_neighborhood_(self, constrained_swarm, topology, p, r):
+        """Test if update_gbest_neighborhood gives the expected return values"""
+        topo = topology()
+        pos, cost = topo.compute_gbest(constrained_swarm, p=p, r=r)
+        expected_pos = np.array(
+            [9.90438476e-01, 2.50379538e-03, 1.87405987e-05]
+        )
+        expected_pos_2 = np.array(
+            [9.98033031e-01, 4.97392619e-03, 3.07726256e-03]
+        )
+        expected_cost = 1.0002528364353296
+        assert cost == pytest.approx(expected_cost)
+        assert (pos[np.argmin(cost)] == pytest.approx(expected_pos)) or (
+            pos[np.argmin(cost)] == pytest.approx(expected_pos_2)
+        )
+
+    @pytest.mark.parametrize("r", [0, 1])
+    @pytest.mark.parametrize("p", [1, 2])
+    def test_update_gbest_violation_neighborhood(self, constrained_swarm, topology, p, r):
+        """Test if update_gbest_neighborhood gives the expected return values"""
+        topo = topology()
+        pos, cost = topo.compute_gbest_violation(constrained_swarm, p=p, r=r)
+        expected_pos = np.array(
+            [9.93740665e-01, -6.16501403e-03, -1.46096578e-02]
+        )
+        expected_pos_2 = np.array(
+            [10.98033031e-01, 5.96392619e-03, 4.07726256e-03]
+        )
+        expected_cost = -6.0
+        assert cost == pytest.approx(expected_cost)
+        assert (pos[np.argmin(cost)] == pytest.approx(expected_pos)) or (
+            pos[np.argmin(cost)] == pytest.approx(expected_pos_2)
+        )
+
     @pytest.mark.parametrize("m", [i for i in range(3)])
     @pytest.mark.parametrize("n", [i for i in range(3)])
     def test_delannoy_numbers(self, m, n):
