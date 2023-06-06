@@ -67,3 +67,19 @@ class ABCTestTopology(abc.ABC):
         with pytest.raises(AttributeError):
             topo = topology(static=static)
             topo.compute_gbest(swarm, **options)
+
+    @pytest.mark.parametrize("static", [True, False])
+    @pytest.mark.parametrize("constrained_swarm", [0, (1, 2, 3)])
+    def test_input_swarm_(self, topology, static, constrained_swarm, options):
+        """Test if AttributeError is raised when passed with a non-Swarm instance"""
+        with pytest.raises(AttributeError):
+            topo = topology(static=static)
+            topo.compute_gbest(constrained_swarm, **options)
+            
+    @pytest.mark.parametrize("static", [True, False])
+    @pytest.mark.parametrize("constrained_swarm", [0, (1, 2, 3)])
+    def test_input_swarm_v(self, topology, static, constrained_swarm, options):
+        """Test if AttributeError is raised when passed with a non-Swarm instance"""
+        with pytest.raises(AttributeError):
+            topo = topology(static=static)
+            topo.compute_gbest_violation(constrained_swarm, **options)        

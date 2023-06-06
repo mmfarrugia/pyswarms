@@ -35,7 +35,7 @@ def constrained_swarm():
         "velocity": np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]),
         "current_cost": np.array([2, 2, 2]),
         "current_violation": np.array([0, 12, 0]),
-        "costs_merged": np.array([2, 12, 2]),
+        "current_merged": np.array([2, 12, 2]),
         "pbest_cost": np.array([1, 2, 3]),
         "pbest_violation": np.array([11, 12, 13]),
         "pbest_merged": np.array([21, 22, 23]),
