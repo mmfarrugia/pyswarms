@@ -80,7 +80,7 @@ from ..base import SwarmOptimizer
 from ..utils.reporter import Reporter
 
 
-class GeneralOptimizerPSO(SwarmOptimizer):
+class MultiOptimizerPSO(SwarmOptimizer):
     def __init__(
         self,
         n_particles,
@@ -175,7 +175,7 @@ class GeneralOptimizerPSO(SwarmOptimizer):
             option to explicitly set the particles' initial positions. Set to
             :code:`None` if you wish to generate the particles randomly.
         """
-        super(GeneralOptimizerPSO, self).__init__(
+        super(MultiOptimizerPSO, self).__init__(
             n_particles,
             dimensions=dimensions,
             options=options,

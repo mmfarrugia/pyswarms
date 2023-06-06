@@ -68,7 +68,7 @@ import multiprocessing as mp
 from collections import deque, namedtuple
 from pyswarms.backend.generators import create_epsilon_swarm
 
-from pyswarms.double.general_optimizer import GeneralOptimizerPSO
+from pyswarms.double.multi_optimizer import MultiOptimizerPSO
 
 from ..backend.operators import compute_pbest, compute_objective_function, compute_epsilon_functions, compute_constraint_function, compute_pbest_violation
 from ..backend.topology import Topology
@@ -173,7 +173,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             option to explicitly set the particles' initial positions. Set to
             :code:`None` if you wish to generate the particles randomly.
         """
-        super(GeneralOptimizerPSO, self).__init__(
+        super(MultiOptimizerPSO, self).__init__(
             n_particles,
             dimensions=dimensions,
             options=options,
