@@ -294,7 +294,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             self.swarm.current_cost = compute_objective_function(self.swarm, objective_func, pool=pool, **kwargs)
             self.swarm.current_violation = compute_constraint_function(self.swarm, constraint_func, pool, **kwargs)
             mask_epsilon = self.swarm.current_violation <= np.zeros(self.swarm.n_particles)
-            self.swarm.costs_merged = np.where(mask_epsilon, self.swarm.current_cost, self.swarm.current_violation)
+            self.swarm.current_merged = np.where(mask_epsilon, self.swarm.current_cost, self.swarm.current_violation)
             # Compute personal best cost and position for each particle
             self.swarm.pbest_pos, self.swarm.pbest_cost = compute_pbest(self.swarm)
             # Compute personal best violation and position for each particle, merge cost and violation per particle

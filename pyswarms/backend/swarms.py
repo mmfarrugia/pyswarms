@@ -242,7 +242,7 @@ class ConstrainedSwarm(Swarm):
         validator=instance_of(np.ndarray),
     )
     #merged are the merged costs
-    costs_merged = attrib(
+    current_merged = attrib(
         type=np.ndarray,
         default=np.array([]),
         validator=instance_of(np.ndarray),
