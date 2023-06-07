@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 # Import from pyswarms
-from pyswarms.utils.functions.single_obj import rosenbrock, sphere
+from pyswarms.utils.functions.single_obj import rosenbrock, sphere, zeroTest, zeroTestWithArgs
 
 
 class ABCTestConstrainedOptimizer(abc.ABC):
@@ -94,7 +94,7 @@ class ABCTestConstrainedOptimizer(abc.ABC):
 
         opt = optimizer(100, 2, options=options)
         opt.optimize(
-            obj_without_args, 2000, n_processes=multiprocessing.cpu_count()
+            obj_without_args, zeroTest, 2000, n_processes=multiprocessing.cpu_count()
         )
         assert np.array(opt.cost_history).shape == (2000,)
 
@@ -104,7 +104,7 @@ class ABCTestConstrainedOptimizer(abc.ABC):
         x_min = -1 * x_max
         bounds = (x_min, x_max)
         opt = optimizer(100, 2, options=options, bounds=bounds)
-        cost, pos = opt.optimize(obj_with_args, 1000, a=1, b=100)
+        cost, pos = opt.optimize(obj_with_args, zeroTestWithArgs, 1000, a=1, b=100)
         assert np.isclose(cost, 0, rtol=1e-03)
         assert np.isclose(pos[0], 1.0, rtol=1e-03)
         assert np.isclose(pos[1], 1.0, rtol=1e-03)

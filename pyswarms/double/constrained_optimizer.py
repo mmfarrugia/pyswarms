@@ -70,8 +70,9 @@ from pyswarms.backend.generators import create_epsilon_swarm
 
 from pyswarms.double.multi_optimizer import MultiOptimizerPSO
 
-from ..backend.operators import compute_pbest, compute_objective_function, compute_epsilon_functions, compute_constraint_function, compute_pbest_violation
+from ..backend.operators import compute_pbest, compute_objective_function, compute_constraint_function, compute_pbest_violation
 from ..backend.topology import Topology
+from ..backend.topology import Star
 from ..backend.handlers import BoundaryHandler, VelocityHandler, OptionsHandler
 from ..base import SwarmOptimizer
 from ..utils.reporter import Reporter
@@ -83,7 +84,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
         n_particles,
         dimensions,
         options,
-        topology,
+        topology=Star(),
         bounds=None,
         oh_strategy=None,
         bh_strategy="periodic",
@@ -173,7 +174,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             option to explicitly set the particles' initial positions. Set to
             :code:`None` if you wish to generate the particles randomly.
         """
-        super(MultiOptimizerPSO, self).__init__(
+        super(ConstrainedOptimizerPSO, self).__init__(
             n_particles,
             dimensions=dimensions,
             options=options,
@@ -287,6 +288,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
         pool = None if n_processes is None else mp.Pool(n_processes)
 
         self.swarm.pbest_cost = np.full(self.swarm_size[0], np.inf)
+        self.swarm.pbest_violation = np.full(self.swarm_size[0], np.inf)
         ftol_history = deque(maxlen=self.ftol_iter)
         for i in self.rep.pbar(iters, self.name) if verbose else range(iters):
             # Compute cost for current position and personal best
@@ -301,7 +303,8 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             # based on satisfaction of epsilon constraints
             self.swarm.pbest_violation_pos, self.swarm.pbest_violation = compute_pbest_violation(self.swarm)
             self.swarm.pbest_merged = np.where(mask_epsilon, self.swarm.pbest_cost, self.swarm.pbest_violation)
-            self.swarm.pbest_merged_pos = np.where(mask_epsilon, self.swarm.pbest_pos, self.swarm.pbest_violation_pos)
+            mask_epsilon_pos = np.repeat(mask_epsilon[:, np.newaxis], self.swarm.dimensions, axis=1)
+            self.swarm.pbest_merged_pos = np.where(mask_epsilon_pos, self.swarm.pbest_pos, self.swarm.pbest_violation_pos)
 
             best_cost_yet_found = self.swarm.best_cost
             best_violation_yet_found = self.swarm.best_violation
@@ -316,7 +319,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             # Update the merged arrays of best values where the singular best value for cost or violation
             # is placed at each index based on whether the constraint function is satisfactorily minimized
             # on a per-particle basis
-            self.swarm.best_merged_pos = np.where(mask_epsilon, self.swarm.best_pos, self.swarm.best_violation_pos)
+            self.swarm.best_merged_pos = np.where(mask_epsilon_pos, self.swarm.best_pos, self.swarm.best_violation_pos)
             self.swarm.best_merged = np.where(mask_epsilon, self.swarm.best_cost, self.swarm.best_violation)
 
             # Print to console

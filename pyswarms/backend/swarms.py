@@ -218,12 +218,8 @@ class ConstrainedSwarm(Swarm):
         shape :code:`(n_particles, dimensions)`
     """
     #violation are constraint cost values
+    pbest_violation_pos = attrib(type=np.ndarray, validator=instance_of(np.ndarray))
     pbest_violation = attrib(
-        type=np.ndarray,
-        default=np.array([]),
-        validator=instance_of(np.ndarray),
-    )
-    pbest_violation_pos = attrib(
         type=np.ndarray,
         default=np.array([]),
         validator=instance_of(np.ndarray),
@@ -268,5 +264,9 @@ class ConstrainedSwarm(Swarm):
         default=np.array([]),
         validator=instance_of(np.ndarray),
     )
+
+    @pbest_violation_pos.default
+    def pbest_violation_pos_default(self):
+        return self.position
 
 

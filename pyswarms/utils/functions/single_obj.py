@@ -762,3 +762,41 @@ def threehump(x):
     j = 2 * x_ ** 2 - 1.05 * (x_ ** 4) + (x_ ** 6) / 6 + x_ * y_ + y_ ** 2
 
     return j
+
+def zeroTest(x):
+    """Dummy constraint function for testing
+
+    Always returns 0, indicating constraint satisfied, used for testing to
+    ensure that optimization works as a normal opt would when constraint
+    exists but doesn't effect outcome.
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        set of inputs of shape :code:`(n_particles, dimensions)`
+
+    Returns
+    -------
+    numpy.ndarray
+        zero cost of size :code:`(n_particles, )`
+    """
+    return np.zeros(len(x))
+
+def zeroTestWithArgs(x, a, b):
+    """Dummy constraint function for testing
+
+    Always returns 0, indicating constraint satisfied, used for testing to
+    ensure that optimization works as a normal opt would when constraint
+    exists but doesn't effect outcome.
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        set of inputs of shape :code:`(n_particles, dimensions)`
+
+    Returns
+    -------
+    numpy.ndarray
+        zero cost of size :code:`(n_particles, )`
+    """
+    return np.zeros(len(x))
