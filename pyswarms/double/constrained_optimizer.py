@@ -59,6 +59,7 @@ R.C. Eberhart in Particle Swarm Optimization [IJCNN1995]_.
 """
 
 # Import standard library
+import copy
 import logging
 
 # Import modules
@@ -293,8 +294,16 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
         for i in self.rep.pbar(iters, self.name) if verbose else range(iters):
             # Compute cost for current position and personal best
             # fmt: off
-            self.swarm.current_cost = compute_objective_function(self.swarm, objective_func, pool=pool, **kwargs)
-            self.swarm.current_violation = compute_constraint_function(self.swarm, constraint_func, pool, **kwargs)
+            #TODO: find a better way to handle this, but for now simply check if args
+            #would be best to instead have user optionally pass two separate dictionaries
+            try:
+                self.swarm.current_cost = compute_objective_function(self.swarm, objective_func, pool=pool, **kwargs)
+            except:
+                self.swarm.current_cost = compute_objective_function(self.swarm, objective_func, pool=pool)
+            try:
+                self.swarm.current_violation = compute_constraint_function(self.swarm, constraint_func, pool, **kwargs)
+            except:
+                self.swarm.current_violation = compute_constraint_function(self.swarm, constraint_func, pool)
             mask_epsilon = self.swarm.current_violation <= np.zeros(self.swarm.n_particles)
             self.swarm.current_merged = np.where(mask_epsilon, self.swarm.current_cost, self.swarm.current_violation)
             # Compute personal best cost and position for each particle
@@ -310,9 +319,19 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             best_violation_yet_found = self.swarm.best_violation
             # fmt: on
             # Update swarm
-            self.swarm.best_pos, self.swarm.best_cost = self.top.compute_gbest(
+            maybe_best_pos, maybe_best_cost = self.top.compute_gbest(
                 self.swarm, **self.options
             )
+            if len(self.swarm.best_pos) != 0:
+                compare_stack = np.vstack((maybe_best_pos, self.swarm.best_pos))
+                compare = constraint_func(compare_stack, **kwargs)
+                if compare[0] <= 0:
+                    self.swarm.best_pos, self.swarm.best_cost = maybe_best_pos, maybe_best_cost
+                elif compare[0] <= compare[1]:
+                    self.swarm.best_pos, self.swarm.best_cost = maybe_best_pos, maybe_best_cost
+            else:
+                self.swarm.best_pos, self.swarm.best_cost = maybe_best_pos, maybe_best_cost
+
             self.swarm.best_violation_pos, self.swarm.best_violation = self.top.compute_gbest_violation(
                 self.swarm, **self.options
             )
@@ -360,7 +379,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
                 self.swarm, self.bounds, self.bh
             )
         # Obtain the final best_cost and the final best_position
-        final_best_cost = self.swarm.best_cost.copy()
+        final_best_cost = copy.copy(self.swarm.best_cost)
         final_best_pos = self.swarm.pbest_pos[
             self.swarm.pbest_cost.argmin()
         ].copy()

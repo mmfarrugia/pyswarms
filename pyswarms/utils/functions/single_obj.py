@@ -593,6 +593,33 @@ def matyas(x):
 
     return j
 
+def n_disk_constraint(x, r=1.):
+    """n-dimensional disk constraint function.
+
+    Has a global minimum at :code:`f(0,0,...,0)` with a search
+    domain of :code:`[-5.12, 5.12]`
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        set of inputs of shape :code:`(n_particles, dimensions)`
+    r : float
+        radius of disk
+
+    Returns
+    -------
+    numpy.ndarray
+        computed cost of size :code:`(n_particles, )`
+
+    Raises
+    ------
+    ValueError
+        When the input is out of bounds with respect to the function
+        domain
+    """
+    diff = np.abs(x) - r
+    d = [max(row) for row in diff]
+    return d
 
 def rastrigin(x):
     """Rastrigin objective function.
