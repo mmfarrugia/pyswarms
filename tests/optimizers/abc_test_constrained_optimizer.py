@@ -39,6 +39,32 @@ class ABCTestConstrainedOptimizer(abc.ABC):
     def options(self):
         """Default options dictionary for most PSO use-cases"""
         return {"c1": 0.3, "c2": 0.7, "w": 0.9, "k": 2, "p": 2, "r": 1}
+    
+    @pytest.fixture
+    def n_particles(self):
+        """Default number of particles for most PSO test-cases"""
+        return 10
+    
+    @pytest.fixture
+    def dimensions(self):
+        """Default number of dimensions for most PSO test-cases"""
+        return 2
+    
+    @pytest.fixture
+    def big_dimensions(self):
+        """Big number of dimensions for PSO test-cases"""
+        return 10
+    
+    @pytest.fixture
+    def himmelblau_bounds(self):
+        """Himmelblau bounds for PSO test-cases"""
+        return 5
+    
+    @pytest.fixture
+    def init_pos(self):
+        """Default initial positions array used in testing to reduce the stochastic
+         dependence on the randomized initial positions from generate_swarm"""
+        raise NotImplementedError("NotImplementedError::optimizer_reset")
 
     @pytest.fixture
     def obj_with_args(self):

@@ -22,7 +22,7 @@ rep = Reporter(logger=logging.getLogger(__name__))
 
 
 def generate_swarm(
-    n_particles, dimensions, bounds=None, center=1.00, init_pos=None
+    n_particles, dimensions, bounds=None, center=1.00, init_pos=None, seed=None
 ):
     """Generate a swarm
 
@@ -58,6 +58,8 @@ def generate_swarm(
         When the argument passed to bounds is not an iterable.
     """
     try:
+        if seed is not None:
+            np.random.seed(seed)
         if (init_pos is not None) and (bounds is None):
             pos = init_pos
         elif (init_pos is not None) and (bounds is not None):
