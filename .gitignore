@@ -50,6 +50,7 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
+.history/
 
 # Translations
 *.mo
@@ -70,3 +71,25 @@ target/
 
 # Vagrant folder
 .vagrant
+.history/pyswarms/backend/topology/pyramid_20230518141934.py
+.history/pyswarms/backend/topology/pyramid_20230605140623.py
+.history/pyswarms/backend/topology/pyramid_20230605141726.py
+.history/pyswarms/backend/topology/random_20230518140318.py
+.history/pyswarms/backend/topology/random_20230605142232.py
+.history/tests/utils/plotters/BROKENtest_plotters_20230605121652.py
+.history/tests/utils/plotters/BROKENtest_plotters_20230605121758.py
+.history/tests/utils/plotters/BROKENtest_plotters_20230605123711.py
+.history/tests/utils/plotters/test_plotters_20230511124316.py
+.history/tests/utils/plotters/test_plotters_20230526143242.py
+.history/tests/utils/plotters/test_plotters_20230526143409.py
+.history/tests/utils/plotters/test_plotters_20230605120649.py
+.history/tests/utils/plotters/test_plotters_20230605120713.py
+.history/tests/utils/plotters/test_plotters_20230605120714.py
+.history/tests/utils/plotters/test_plotters_20230605121055.py
+.history/tests/utils/plotters/test_plotters_20230605121349.py
+.history/tests/utils/plotters/test_plotters_20230605121456.py
+.history/tests/utils/plotters/test_plotters_20230605121600.py
+.history/tests/utils/plotters/test_plotters_20230605121653.py
+.history/tests/utils/plotters/test_plotters_20230605123951.py
+.history/.gitignore_20230511124315
+.history/.gitignore_20230605142534
