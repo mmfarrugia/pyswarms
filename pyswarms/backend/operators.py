@@ -345,7 +345,7 @@ def compute_objective_functions(swarm, objective_funcs, pool=None, **kwargs):
 
     costs = {}
     for objective_func in objective_funcs:
-        costs[objective_func] = compute_objective_function(swarm, objective_func, pool, kwargs)
+        costs[objective_func] = compute_objective_function(swarm, objective_func, pool, **kwargs)
     return costs
 
 def compute_constraint_function(swarm, constraint_func, pool=None, **kwargs):

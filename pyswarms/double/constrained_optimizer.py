@@ -59,6 +59,7 @@ R.C. Eberhart in Particle Swarm Optimization [IJCNN1995]_.
 """
 
 # Import standard library
+import copy
 import logging
 
 # Import modules
@@ -70,8 +71,9 @@ from pyswarms.backend.generators import create_epsilon_swarm
 
 from pyswarms.double.multi_optimizer import MultiOptimizerPSO
 
-from ..backend.operators import compute_pbest, compute_objective_function, compute_epsilon_functions, compute_constraint_function, compute_pbest_violation
+from ..backend.operators import compute_pbest, compute_objective_function, compute_constraint_function, compute_pbest_violation
 from ..backend.topology import Topology
+from ..backend.topology import Star
 from ..backend.handlers import BoundaryHandler, VelocityHandler, OptionsHandler
 from ..base import SwarmOptimizer
 from ..utils.reporter import Reporter
@@ -83,7 +85,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
         n_particles,
         dimensions,
         options,
-        topology,
+        topology=Star(),
         bounds=None,
         oh_strategy=None,
         bh_strategy="periodic",
@@ -173,7 +175,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             option to explicitly set the particles' initial positions. Set to
             :code:`None` if you wish to generate the particles randomly.
         """
-        super(MultiOptimizerPSO, self).__init__(
+        super(ConstrainedOptimizerPSO, self).__init__(
             n_particles,
             dimensions=dimensions,
             options=options,
@@ -287,12 +289,21 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
         pool = None if n_processes is None else mp.Pool(n_processes)
 
         self.swarm.pbest_cost = np.full(self.swarm_size[0], np.inf)
+        self.swarm.pbest_violation = np.full(self.swarm_size[0], np.inf)
         ftol_history = deque(maxlen=self.ftol_iter)
         for i in self.rep.pbar(iters, self.name) if verbose else range(iters):
             # Compute cost for current position and personal best
             # fmt: off
-            self.swarm.current_cost = compute_objective_function(self.swarm, objective_func, pool=pool, **kwargs)
-            self.swarm.current_violation = compute_constraint_function(self.swarm, constraint_func, pool, **kwargs)
+            #TODO: find a better way to handle this, but for now simply check if args
+            #would be best to instead have user optionally pass two separate dictionaries
+            try:
+                self.swarm.current_cost = compute_objective_function(self.swarm, objective_func, pool=pool, **kwargs)
+            except:
+                self.swarm.current_cost = compute_objective_function(self.swarm, objective_func, pool=pool)
+            try:
+                self.swarm.current_violation = compute_constraint_function(self.swarm, constraint_func, pool, **kwargs)
+            except:
+                self.swarm.current_violation = compute_constraint_function(self.swarm, constraint_func, pool)
             mask_epsilon = self.swarm.current_violation <= np.zeros(self.swarm.n_particles)
             self.swarm.current_merged = np.where(mask_epsilon, self.swarm.current_cost, self.swarm.current_violation)
             # Compute personal best cost and position for each particle
@@ -301,22 +312,33 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             # based on satisfaction of epsilon constraints
             self.swarm.pbest_violation_pos, self.swarm.pbest_violation = compute_pbest_violation(self.swarm)
             self.swarm.pbest_merged = np.where(mask_epsilon, self.swarm.pbest_cost, self.swarm.pbest_violation)
-            self.swarm.pbest_merged_pos = np.where(mask_epsilon, self.swarm.pbest_pos, self.swarm.pbest_violation_pos)
+            mask_epsilon_pos = np.repeat(mask_epsilon[:, np.newaxis], self.swarm.dimensions, axis=1)
+            self.swarm.pbest_merged_pos = np.where(mask_epsilon_pos, self.swarm.pbest_pos, self.swarm.pbest_violation_pos)
 
             best_cost_yet_found = self.swarm.best_cost
             best_violation_yet_found = self.swarm.best_violation
             # fmt: on
             # Update swarm
-            self.swarm.best_pos, self.swarm.best_cost = self.top.compute_gbest(
+            maybe_best_pos, maybe_best_cost = self.top.compute_gbest(
                 self.swarm, **self.options
             )
+            if len(self.swarm.best_pos) != 0:
+                compare_stack = np.vstack((maybe_best_pos, self.swarm.best_pos))
+                compare = constraint_func(compare_stack, **kwargs)
+                if compare[0] <= 0:
+                    self.swarm.best_pos, self.swarm.best_cost = maybe_best_pos, maybe_best_cost
+                elif compare[0] <= compare[1]:
+                    self.swarm.best_pos, self.swarm.best_cost = maybe_best_pos, maybe_best_cost
+            else:
+                self.swarm.best_pos, self.swarm.best_cost = maybe_best_pos, maybe_best_cost
+
             self.swarm.best_violation_pos, self.swarm.best_violation = self.top.compute_gbest_violation(
                 self.swarm, **self.options
             )
             # Update the merged arrays of best values where the singular best value for cost or violation
             # is placed at each index based on whether the constraint function is satisfactorily minimized
             # on a per-particle basis
-            self.swarm.best_merged_pos = np.where(mask_epsilon, self.swarm.best_pos, self.swarm.best_violation_pos)
+            self.swarm.best_merged_pos = np.where(mask_epsilon_pos, self.swarm.best_pos, self.swarm.best_violation_pos)
             self.swarm.best_merged = np.where(mask_epsilon, self.swarm.best_cost, self.swarm.best_violation)
 
             # Print to console
@@ -357,7 +379,7 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
                 self.swarm, self.bounds, self.bh
             )
         # Obtain the final best_cost and the final best_position
-        final_best_cost = self.swarm.best_cost.copy()
+        final_best_cost = copy.copy(self.swarm.best_cost)
         final_best_pos = self.swarm.pbest_pos[
             self.swarm.pbest_cost.argmin()
         ].copy()

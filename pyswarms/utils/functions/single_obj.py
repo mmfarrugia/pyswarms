@@ -593,6 +593,33 @@ def matyas(x):
 
     return j
 
+def n_disk_constraint(x, r=1.):
+    """n-dimensional disk constraint function.
+
+    Has a global minimum at :code:`f(0,0,...,0)` with a search
+    domain of :code:`[-5.12, 5.12]`
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        set of inputs of shape :code:`(n_particles, dimensions)`
+    r : float
+        radius of disk
+
+    Returns
+    -------
+    numpy.ndarray
+        computed cost of size :code:`(n_particles, )`
+
+    Raises
+    ------
+    ValueError
+        When the input is out of bounds with respect to the function
+        domain
+    """
+    diff = np.abs(x) - r
+    d = [max(row) for row in diff]
+    return d
 
 def rastrigin(x):
     """Rastrigin objective function.
@@ -762,3 +789,41 @@ def threehump(x):
     j = 2 * x_ ** 2 - 1.05 * (x_ ** 4) + (x_ ** 6) / 6 + x_ * y_ + y_ ** 2
 
     return j
+
+def zeroTest(x):
+    """Dummy constraint function for testing
+
+    Always returns 0, indicating constraint satisfied, used for testing to
+    ensure that optimization works as a normal opt would when constraint
+    exists but doesn't effect outcome.
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        set of inputs of shape :code:`(n_particles, dimensions)`
+
+    Returns
+    -------
+    numpy.ndarray
+        zero cost of size :code:`(n_particles, )`
+    """
+    return np.zeros(len(x))
+
+def zeroTestWithArgs(x, a, b):
+    """Dummy constraint function for testing
+
+    Always returns 0, indicating constraint satisfied, used for testing to
+    ensure that optimization works as a normal opt would when constraint
+    exists but doesn't effect outcome.
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        set of inputs of shape :code:`(n_particles, dimensions)`
+
+    Returns
+    -------
+    numpy.ndarray
+        zero cost of size :code:`(n_particles, )`
+    """
+    return np.zeros(len(x))
