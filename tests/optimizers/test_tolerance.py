@@ -13,6 +13,7 @@ import numpy as np
 # Import from pyswarms
 from pyswarms.backend.topology import Star
 from pyswarms.single import GlobalBestPSO, LocalBestPSO, GeneralOptimizerPSO
+from pyswarms.constrained import ConstrainedOptimizerPSO
 
 # Knapsack parameters
 capacity = 50
@@ -62,6 +63,13 @@ def objective_function(X, **kwargs):
     return np.array(dist)
 
 
+def constraint_function(X, **kwargs):
+    """Objective function with arguments"""
+    n_particles_ = X.shape[0]
+    dist = [0 for i in range(n_particles_)]
+    return np.array(dist)
+
+
 # Instantiate optimizers
 optimizers = [GlobalBestPSO, LocalBestPSO, GeneralOptimizerPSO]
 parameters = dict(
@@ -83,12 +91,24 @@ class TestToleranceOptions:
             return request.param, {**parameters, **{"topology": Star()}}
         return request.param, parameters
 
+    @pytest.fixture
+    def constrained_optimizer(self):
+        global parameters
+        return ConstrainedOptimizerPSO(**parameters)
+
     def test_no_ftol(self, optimizer):
         """Test complete run"""
         optm, params = optimizer
         opt = optm(**params)
         opt.optimize(objective_function, iters=iterations, **kwargs)
         assert len(opt.cost_history) == iterations
+
+    def test_no_ftol_(self, constrained_optimizer):
+        """Test complete run"""
+        constrained_optimizer.optimize(
+            objective_function, constraint_function, iters=iterations, **kwargs
+        )
+        assert len(constrained_optimizer.cost_history) == iterations
 
     def test_ftol_effect(self, optimizer):
         """Test early stopping with ftol"""
@@ -98,12 +118,31 @@ class TestToleranceOptions:
         opt.optimize(objective_function, iters=iterations, **kwargs)
         assert len(opt.cost_history) <= iterations
 
+    def test_ftol_effect(self):
+        """Test early stopping with ftol"""
+        global parameters
+        params = parameters
+        params["ftol"] = 0.01
+        opt = ConstrainedOptimizerPSO(**params)
+        opt.optimize(
+            objective_function, constraint_function, iters=iterations, **kwargs
+        )
+        assert len(opt.cost_history) <= iterations
+
     def test_ftol_iter_assertion(self, optimizer):
         """Assert ftol_iter type and value"""
         with pytest.raises(AssertionError):
             optm, params = optimizer
             params["ftol_iter"] = 0
             opt = optm(**params)
+
+    def test_ftol_iter_assertion_(self):
+        """Assert ftol_iter type and value"""
+        global parameters
+        params = parameters
+        with pytest.raises(AssertionError):
+            params["ftol_iter"] = 0
+            opt = ConstrainedOptimizerPSO(**params)
 
     def test_ftol_iter_effect(self, optimizer):
         """Test early stopping with ftol and ftol_iter;
@@ -112,4 +151,16 @@ class TestToleranceOptions:
         params["ftol_iter"] = 50
         opt = optm(**params)
         opt.optimize(objective_function, iters=iterations, **kwargs)
+        assert len(opt.cost_history) >= opt.ftol_iter
+
+    def test_ftol_iter_effect_(self):
+        """Test early stopping with ftol and ftol_iter;
+        must run for a minimum of ftol_iter iterations"""
+        global parameters
+        params = parameters
+        params["ftol_iter"] = 50
+        opt = ConstrainedOptimizerPSO(**params)
+        opt.optimize(
+            objective_function, constraint_function, iters=iterations, **kwargs
+        )
         assert len(opt.cost_history) >= opt.ftol_iter
