@@ -69,7 +69,6 @@ import multiprocessing as mp
 from collections import deque, namedtuple
 from pyswarms.backend.generators import create_epsilon_swarm
 
-from pyswarms.constrained.multi_optimizer import MultiOptimizerPSO
 
 from ..backend.operators import compute_pbest, compute_objective_function, compute_constraint_function, compute_pbest_violation
 from ..backend.topology import Topology

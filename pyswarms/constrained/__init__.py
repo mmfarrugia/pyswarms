@@ -14,8 +14,6 @@ objective function that can be optimized in a continuous space.
     multiplication can lead to an :code:`OverflowError`.
 """
 
-from .global_best import GlobalBestPSO
-from .local_best import LocalBestPSO
-from .multi_optimizer import MultiOptimizerPSO
+from .constrained_optimizer import ConstrainedOptimizerPSO
 
-__all__ = ["GlobalBestPSO", "LocalBestPSO", "MultiOptimizerPSO"]
+__all__ = ["ConstrainedOptimizerPSO"]
