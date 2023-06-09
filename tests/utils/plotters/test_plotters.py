@@ -21,6 +21,7 @@ from pyswarms.utils.plotters import (
     plot_contour,
     plot_cost_history,
     plot_surface,
+    plot_violation_history,
 )
 from pyswarms.utils.plotters.plotters import _animate, _mesh
 
@@ -34,6 +35,14 @@ def test_plot_cost_history_return_type(trained_optimizer, history):
     plot = plot_cost_history(opt_params[history])
     assert isinstance(plot, SubplotBase)
 
+@pytest.mark.parametrize(
+    "history", ["cost_history", "mean_neighbor_history", "mean_pbest_history"]
+)
+def test_plot_violation_history_return_type(trained_constrained_optimizer, history):
+    """Tests if plot_cost_history() returns a SubplotBase instance"""
+    opt_params = vars(trained_constrained_optimizer)
+    plot = plot_violation_history(opt_params[history])
+    assert isinstance(plot, SubplotBase)
 
 @pytest.mark.parametrize("bad_values", [2, 43.14])
 def test_plot_cost_history_error(bad_values):
@@ -41,6 +50,11 @@ def test_plot_cost_history_error(bad_values):
     with pytest.raises(TypeError):
         plot_cost_history(bad_values)
 
+@pytest.mark.parametrize("bad_values", [2, 43.14])
+def test_plot_violation_history_error(bad_values):
+    """Tests if plot_cost_history() raises an error given bad values"""
+    with pytest.raises(TypeError):
+        plot_violation_history(bad_values)
 
 def test_plot_contour_return_type(pos_history):
     """Tests if the animation function returns the expected type"""

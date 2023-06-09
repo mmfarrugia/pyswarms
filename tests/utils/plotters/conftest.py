@@ -19,7 +19,8 @@ if os.environ.get("DISPLAY", "") == "":
 
 # Import from pyswarms
 from pyswarms.single import GlobalBestPSO
-from pyswarms.utils.functions.single_obj import sphere
+from pyswarms.constrained.constrained_optimizer import ConstrainedOptimizerPSO
+from pyswarms.utils.functions.single_obj import sphere, n_disk_constraint
 from pyswarms.utils.plotters.formatters import Mesher
 
 
@@ -31,6 +32,13 @@ def trained_optimizer():
     optimizer.optimize(sphere, iters=100)
     return optimizer
 
+@pytest.fixture
+def trained_constrained_optimizer():
+    """Returns a trained optimizer instance with 100 iterations"""
+    options = {"c1": 0.5, "c2": 0.3, "w": 0.9}
+    optimizer = ConstrainedOptimizerPSO(n_particles=10, dimensions=2, options=options)
+    optimizer.optimize(sphere, n_disk_constraint, iters=100)
+    return optimizer
 
 @pytest.fixture
 def pos_history():

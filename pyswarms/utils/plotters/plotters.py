@@ -138,6 +138,62 @@ def plot_cost_history(
     else:
         return ax
 
+def plot_violation_history(
+    violation_history, ax=None, title="Violation History", designer=None, **kwargs
+):
+    """Create a simple line plot with the constraint violation in the y-axis and
+    the iteration at the x-axis
+
+    Parameters
+    ----------
+    violation_history : array_like
+        Violation history of shape :code:`(iters, )` or length :code:`iters` where
+        each element contains the constraint violation for the given iteration.
+    ax : :obj:`matplotlib.axes.Axes`, optional
+        The axes where the plot is to be drawn. If :code:`None` is
+        passed, then the plot will be drawn to a new set of axes.
+    title : str, optional
+        The title of the plotted graph. Default is `Violation History`
+    designer : :obj:`pyswarms.utils.formatters.Designer`, optional
+        Designer class for custom attributes
+    **kwargs : dict
+        Keyword arguments that are passed as a keyword argument to
+        :class:`matplotlib.axes.Axes`
+
+    Returns
+    -------
+    :obj:`matplotlib.axes._subplots.AxesSubplot`
+        The axes on which the plot was drawn.
+    """
+    try:
+        # Infer number of iterations based on the length
+        # of the passed array
+        iters = len(violation_history)
+
+        # If no Designer class supplied, use defaults
+        if designer is None:
+            designer = Designer(legend="Violation", label=["Iterations", "Violation"])
+
+        # If no ax supplied, create new instance
+        if ax is None:
+            _, ax = plt.subplots(1, 1, figsize=designer.figsize)
+
+        # Plot with iters in x-axis and the cost in y-axis
+        ax.plot(
+            np.arange(iters), violation_history, "k", lw=2, label=designer.legend
+        )
+
+        # Customize plot depending on parameters
+        ax.set_title(title, fontsize=designer.title_fontsize)
+        ax.legend(fontsize=designer.text_fontsize)
+        ax.set_xlabel(designer.label[0], fontsize=designer.text_fontsize)
+        ax.set_ylabel(designer.label[1], fontsize=designer.text_fontsize)
+        ax.tick_params(labelsize=designer.text_fontsize)
+    except TypeError:
+        rep.logger.exception("Please check your input type")
+        raise
+    else:
+        return ax
 
 def plot_contour(
     pos_history,
