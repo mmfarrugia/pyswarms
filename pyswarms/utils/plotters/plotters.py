@@ -204,6 +204,7 @@ def plot_contour(
     mesher=None,
     animator=None,
     n_processes=None,
+    skip=None,
     **kwargs
 ):
     """Draw a 2D contour map for particle trajectories
@@ -233,6 +234,8 @@ def plot_contour(
         Animator class for custom animation
     n_processes : int
         number of processes to use for parallel mesh point calculation (default: None = no parallelization)
+    skip : int
+        number of data points to skip when plotting
     **kwargs : dict
         Keyword arguments that are passed as a keyword argument to
         :obj:`matplotlib.axes.Axes` plotting function
@@ -284,11 +287,17 @@ def plot_contour(
         # Put scatter skeleton
         plot = ax.scatter(x=[], y=[], c="black", alpha=0.6, **kwargs)
 
+        # Set which frames to use based on 'skip'
+        if skip is not None:
+            frameSeq = range(0, n_iters, skip)
+        else:
+            frameSeq = range(n_iters)    
+
         # Do animation
         anim = animation.FuncAnimation(
             fig=fig,
             func=_animate,
-            frames=range(n_iters),
+            frames=frameSeq,
             fargs=(pos_history, plot),
             interval=animator.interval,
             repeat=animator.repeat,
@@ -310,6 +319,7 @@ def plot_surface(
     animator=None,
     mark=None,
     n_processes=None,
+    skip=None,
     **kwargs
 ):
     """Plot a swarm's trajectory in 3D
@@ -370,6 +380,8 @@ def plot_surface(
         Animator class for custom animation
     n_processes : int
         number of processes to use for parallel mesh point calculation (default: None = no parallelization)
+    skip : int
+        number of data points to skip when plotting    
     **kwargs : dict
         Keyword arguments that are passed as a keyword argument to
         :class:`matplotlib.axes.Axes` plotting function
@@ -429,11 +441,17 @@ def plot_surface(
         # Put scatter skeleton
         plot = ax.scatter(xs=[], ys=[], zs=[], c="black", alpha=0.6, **kwargs)
 
+        # Set which frames to use based on 'skip'
+        if skip is not None:
+            frameSeq = range(0, n_iters, skip)
+        else:
+            frameSeq = range(n_iters)
+
         # Do animation
         anim = animation.FuncAnimation(
             fig=fig,
             func=_animate,
-            frames=range(n_iters),
+            frames=frameSeq,
             fargs=(pos_history, plot),
             interval=animator.interval,
             repeat=animator.repeat,
