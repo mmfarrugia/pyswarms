@@ -78,7 +78,7 @@ class Star(Topology):
             raise
         else:
             return (best_pos, best_cost)
-        
+
     def compute_gbest_violation(self, swarm, **kwargs):
         """Update the global best using a star topology
 
@@ -117,14 +117,21 @@ class Star(Topology):
             if np.min(swarm.pbest_violation) < swarm.best_violation:
                 # Get the particle position with the lowest pbest_cost
                 # and assign it to be the best_pos
-                best_violation_pos = swarm.pbest_violation_pos[np.argmin(swarm.pbest_violation)]
+                best_violation_pos = swarm.pbest_violation_pos[
+                    np.argmin(swarm.pbest_violation)
+                ]
                 best_violation = np.min(swarm.pbest_violation)
             else:
                 # Just get the previous best_pos and best_cost
-                best_violation_pos, best_violation = swarm.best_violation_pos, swarm.best_violation
+                best_violation_pos, best_violation = (
+                    swarm.best_violation_pos,
+                    swarm.best_violation,
+                )
         except AttributeError:
             self.rep.logger.exception(
-                "Please pass a ConstrainedSwarm class. You passed {}".format(type(swarm))
+                "Please pass a ConstrainedSwarm class. You passed {}".format(
+                    type(swarm)
+                )
             )
             raise
         else:

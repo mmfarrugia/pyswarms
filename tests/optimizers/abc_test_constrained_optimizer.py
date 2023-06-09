@@ -9,7 +9,12 @@ import numpy as np
 import pytest
 
 # Import from pyswarms
-from pyswarms.utils.functions.single_obj import rosenbrock, sphere, zeroTest, zeroTestWithArgs
+from pyswarms.utils.functions.single_obj import (
+    rosenbrock,
+    sphere,
+    zeroTest,
+    zeroTestWithArgs,
+)
 
 
 class ABCTestConstrainedOptimizer(abc.ABC):
@@ -39,31 +44,31 @@ class ABCTestConstrainedOptimizer(abc.ABC):
     def options(self):
         """Default options dictionary for most PSO use-cases"""
         return {"c1": 0.3, "c2": 0.7, "w": 0.9, "k": 2, "p": 2, "r": 1}
-    
+
     @pytest.fixture
     def n_particles(self):
         """Default number of particles for most PSO test-cases"""
         return 10
-    
+
     @pytest.fixture
     def dimensions(self):
         """Default number of dimensions for most PSO test-cases"""
         return 2
-    
+
     @pytest.fixture
     def big_dimensions(self):
         """Big number of dimensions for PSO test-cases"""
         return 10
-    
+
     @pytest.fixture
     def himmelblau_bounds(self):
         """Himmelblau bounds for PSO test-cases"""
         return 5
-    
+
     @pytest.fixture
     def init_pos(self):
         """Default initial positions array used in testing to reduce the stochastic
-         dependence on the randomized initial positions from generate_swarm"""
+        dependence on the randomized initial positions from generate_swarm"""
         raise NotImplementedError("NotImplementedError::optimizer_reset")
 
     @pytest.fixture
@@ -99,8 +104,7 @@ class ABCTestConstrainedOptimizer(abc.ABC):
         opt = vars(optimizer_history)
         assert np.array(opt[history]).shape == expected_shape
 
-
-#TODO: continue from here
+    # TODO: continue from here
     def test_reset_default_values(self, optimizer_reset):
         """Test if best cost and best pos are set properly when the reset()
         method is called"""
@@ -120,7 +124,10 @@ class ABCTestConstrainedOptimizer(abc.ABC):
 
         opt = optimizer(100, 2, options=options)
         opt.optimize(
-            obj_without_args, zeroTest, 2000, n_processes=multiprocessing.cpu_count()
+            obj_without_args,
+            zeroTest,
+            2000,
+            n_processes=multiprocessing.cpu_count(),
         )
         assert np.array(opt.cost_history).shape == (2000,)
 
@@ -130,7 +137,9 @@ class ABCTestConstrainedOptimizer(abc.ABC):
         x_min = -1 * x_max
         bounds = (x_min, x_max)
         opt = optimizer(100, 2, options=options, bounds=bounds)
-        cost, pos = opt.optimize(obj_with_args, zeroTestWithArgs, 1000, a=1, b=100)
+        cost, pos = opt.optimize(
+            obj_with_args, zeroTestWithArgs, 1000, a=1, b=100
+        )
         assert np.isclose(cost, 0, rtol=1e-03)
         assert np.isclose(pos[0], 1.0, rtol=1e-03)
         assert np.isclose(pos[1], 1.0, rtol=1e-03)

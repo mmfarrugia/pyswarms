@@ -93,7 +93,7 @@ def generate_swarm(
         raise
     else:
         return pos
-    
+
 
 def generate_discrete_swarm(
     n_particles, dimensions, binary=False, init_pos=None
@@ -245,6 +245,7 @@ def create_swarm(
 
     velocity = generate_velocity(n_particles, dimensions, clamp=clamp)
     return Swarm(position, velocity, options=options)
+
 
 def create_epsilon_swarm(
     n_particles,

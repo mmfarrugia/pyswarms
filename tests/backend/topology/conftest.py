@@ -58,6 +58,7 @@ def swarm():
     # fmt: on
     return Swarm(**attrs_at_t)
 
+
 @pytest.fixture(scope="module")
 def constrained_swarm():
     """A contrived instance of the Swarm class at a certain timestep"""

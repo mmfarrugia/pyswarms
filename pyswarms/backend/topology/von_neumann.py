@@ -48,7 +48,7 @@ class VonNeumann(Ring):
         """
         k = VonNeumann.delannoy(swarm.dimensions, r)
         return super(VonNeumann, self).compute_gbest(swarm, p, k)
-    
+
     def compute_gbest_violation(self, swarm, p, r, **kwargs):
         """Updates the global best violation using a neighborhood approach
 

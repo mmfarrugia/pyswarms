@@ -44,7 +44,9 @@ class TestRingTopology(ABCTestTopology):
     @pytest.mark.parametrize("static", [True, False])
     @pytest.mark.parametrize("k", [i for i in range(1, 10)])
     @pytest.mark.parametrize("p", [1, 2])
-    def test_compute_gbest_return_values_(self, constrained_swarm, topology, p, k, static):
+    def test_compute_gbest_return_values_(
+        self, constrained_swarm, topology, p, k, static
+    ):
         """Test if update_gbest_neighborhood gives the expected return values"""
         topo = topology(static=static)
         pos, cost = topo.compute_gbest(constrained_swarm, p=p, k=k)
@@ -63,7 +65,9 @@ class TestRingTopology(ABCTestTopology):
     @pytest.mark.parametrize("static", [True, False])
     @pytest.mark.parametrize("k", [i for i in range(1, 10)])
     @pytest.mark.parametrize("p", [1, 2])
-    def test_compute_gbest_violation_return_values_(self, constrained_swarm, topology, p, k, static):
+    def test_compute_gbest_violation_return_values_(
+        self, constrained_swarm, topology, p, k, static
+    ):
         """Test if update_gbest_neighborhood gives the expected return values"""
         topo = topology(static=static)
         pos, cost = topo.compute_gbest_violation(constrained_swarm, p=p, k=k)
@@ -77,4 +81,4 @@ class TestRingTopology(ABCTestTopology):
         assert cost == pytest.approx(expected_cost)
         assert (pos[np.argmin(cost)] == pytest.approx(expected_pos)) or (
             pos[np.argmin(cost)] == pytest.approx(expected_pos_2)
-        )    
+        )

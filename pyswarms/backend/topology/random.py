@@ -69,7 +69,8 @@ class Random(Topology):
                     [
                         adj_matrix[i].nonzero()[0]
                         for i in range(swarm.n_particles)
-                    ], dtype=object
+                    ],
+                    dtype=object,
                 )
             idx_min = np.array(
                 [
@@ -95,7 +96,7 @@ class Random(Topology):
             raise
         else:
             return (best_pos, best_cost)
-        
+
     def compute_gbest_violation(self, swarm, k, **kwargs):
         """Update the global best using a random neighborhood approach
 
@@ -132,7 +133,8 @@ class Random(Topology):
                     [
                         adj_matrix[i].nonzero()[0]
                         for i in range(swarm.n_particles)
-                    ], dtype=object
+                    ],
+                    dtype=object,
                 )
             idx_min = np.array(
                 [
@@ -153,12 +155,13 @@ class Random(Topology):
 
         except AttributeError:
             self.rep.logger.exception(
-                "Please pass a ConstrainedSwarm class. You passed {}".format(type(swarm))
+                "Please pass a ConstrainedSwarm class. You passed {}".format(
+                    type(swarm)
+                )
             )
             raise
         else:
             return (best_violation_pos, best_violation)
-
 
     def compute_velocity(
         self,

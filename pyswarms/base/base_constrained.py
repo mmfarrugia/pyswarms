@@ -146,7 +146,8 @@ class SwarmOptimizer(abc.ABC):
         self.mean_pbest_violation_history.append(hist.mean_pbest_violation)
         self.mean_neighbor_history.append(hist.mean_neighbor_cost)
         self.mean_neighbor_violation_history.append(
-            hist.mean_neighbor_violation)
+            hist.mean_neighbor_violation
+        )
         self.pos_history.append(hist.position)
         self.velocity_history.append(hist.velocity)
 

@@ -70,7 +70,12 @@ from collections import deque, namedtuple
 from pyswarms.backend.generators import create_epsilon_swarm
 
 
-from ..backend.operators import compute_pbest, compute_objective_function, compute_constraint_function, compute_pbest_violation
+from ..backend.operators import (
+    compute_pbest,
+    compute_objective_function,
+    compute_constraint_function,
+    compute_pbest_violation,
+)
 from ..backend.topology import Topology
 from ..backend.topology import Star
 from ..backend.handlers import BoundaryHandler, VelocityHandler, OptionsHandler
@@ -204,7 +209,13 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
         self.name = __name__
 
     def optimize(
-        self, objective_func, constraint_func, iters, n_processes=None, verbose=True, **kwargs
+        self,
+        objective_func,
+        constraint_func,
+        iters,
+        n_processes=None,
+        verbose=True,
+        **kwargs
     ):
         """Optimize the swarm for a number of iterations
 
@@ -288,25 +299,40 @@ class ConstrainedOptimizerPSO(SwarmOptimizer):
             )
             if len(self.swarm.best_pos) != 0:
                 compare_stack = np.vstack(
-                    (maybe_best_pos, self.swarm.best_pos))
+                    (maybe_best_pos, self.swarm.best_pos)
+                )
                 compare = constraint_func(compare_stack, **kwargs)
                 if compare[0] <= 0:
-                    self.swarm.best_pos, self.swarm.best_cost = maybe_best_pos, maybe_best_cost
+                    self.swarm.best_pos, self.swarm.best_cost = (
+                        maybe_best_pos,
+                        maybe_best_cost,
+                    )
                 elif compare[0] <= compare[1]:
-                    self.swarm.best_pos, self.swarm.best_cost = maybe_best_pos, maybe_best_cost
+                    self.swarm.best_pos, self.swarm.best_cost = (
+                        maybe_best_pos,
+                        maybe_best_cost,
+                    )
             else:
-                self.swarm.best_pos, self.swarm.best_cost = maybe_best_pos, maybe_best_cost
+                self.swarm.best_pos, self.swarm.best_cost = (
+                    maybe_best_pos,
+                    maybe_best_cost,
+                )
 
-            self.swarm.best_violation_pos, self.swarm.best_violation = self.top.compute_gbest_violation(
-                self.swarm, **self.options
-            )
+            (
+                self.swarm.best_violation_pos,
+                self.swarm.best_violation,
+            ) = self.top.compute_gbest_violation(self.swarm, **self.options)
             # Update the merged arrays of best values where the singular best value for cost or violation
             # is placed at each index based on whether the constraint function is satisfactorily minimized
             # on a per-particle basis
             self.swarm.best_merged_pos = np.where(
-                mask_epsilon_pos, self.swarm.best_pos, self.swarm.best_violation_pos)
+                mask_epsilon_pos,
+                self.swarm.best_pos,
+                self.swarm.best_violation_pos,
+            )
             self.swarm.best_merged = np.where(
-                mask_epsilon, self.swarm.best_cost, self.swarm.best_violation)
+                mask_epsilon, self.swarm.best_cost, self.swarm.best_violation
+            )
 
             # Print to console
             if verbose:

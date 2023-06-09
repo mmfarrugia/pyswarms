@@ -63,7 +63,7 @@ def compute_pbest(swarm):
     try:
         # Infer dimensions from positions
         dimensions = swarm.dimensions
-        
+
         # Create a 1-D and 2-D mask based from comparisons
         mask_cost = swarm.current_cost < swarm.pbest_cost
         mask_pos = np.repeat(mask_cost[:, np.newaxis], dimensions, axis=1)
@@ -132,11 +132,10 @@ def compute_velocity(swarm, clamp, vh, bounds=None):
         w = swarm.options["w"]
         # Compute for cognitive and social terms, constraints handled differently
         if swarm is ConstrainedSwarm:
-            
             cognitive = (
-            c1
-            * np.random.uniform(0, 1, swarm_size)
-            * (swarm.pbest_merged_pos - swarm.position)
+                c1
+                * np.random.uniform(0, 1, swarm_size)
+                * (swarm.pbest_merged_pos - swarm.position)
             )
             social = (
                 c2
@@ -258,10 +257,13 @@ def compute_objective_function(swarm, objective_func, pool=None, **kwargs):
             np.array_split(swarm.position, pool._processes),
         )
         return np.concatenate(results)
-    
-#TODO BACKUP another option for constraints, call it something else for now but could later 
+
+
+# TODO BACKUP another option for constraints, call it something else for now but could later
 # replace the normal one if the current architecture extension fails
-def compute_constrained_cost(swarm, objective_func, constraint_handler, pool=None, **kwargs):
+def compute_constrained_cost(
+    swarm, objective_func, constraint_handler, pool=None, **kwargs
+):
     """Evaluate particles using the objective function
 
     This method evaluates each particle in the swarm according to the objective
@@ -295,7 +297,9 @@ def compute_constrained_cost(swarm, objective_func, constraint_handler, pool=Non
         amended_cost = temp_cost
     except AttributeError:
         rep.logger.exception(
-            "Please pass a ConstrainedSwarm class. You passed {}".format(type(swarm))
+            "Please pass a ConstrainedSwarm class. You passed {}".format(
+                type(swarm)
+            )
         )
         raise
     else:
@@ -313,7 +317,7 @@ def compute_constrained_cost(swarm, objective_func, constraint_handler, pool=Non
 
 def compute_objective_functions(swarm, objective_funcs, pool=None, **kwargs):
     """Evaluate particles using multiple objective functions
-    
+
     Computes multiple objective functions by calling compute_objective_function
     on each objective_func in objective_funcs
 
@@ -345,8 +349,11 @@ def compute_objective_functions(swarm, objective_funcs, pool=None, **kwargs):
 
     costs = {}
     for objective_func in objective_funcs:
-        costs[objective_func] = compute_objective_function(swarm, objective_func, pool, **kwargs)
+        costs[objective_func] = compute_objective_function(
+            swarm, objective_func, pool, **kwargs
+        )
     return costs
+
 
 def compute_constraint_function(swarm, constraint_func, pool=None, **kwargs):
     """Evaluate particles using the constraint function
@@ -384,7 +391,8 @@ def compute_constraint_function(swarm, constraint_func, pool=None, **kwargs):
             np.array_split(swarm.position, pool._processes),
         )
         return np.concatenate(results)
-    
+
+
 def compute_pbest_violation(swarm):
     """Update the personal best score of a swarm instance
 
@@ -425,18 +433,22 @@ def compute_pbest_violation(swarm):
     try:
         # Infer dimensions from positions
         dimensions = swarm.dimensions
-        
+
         # Create a 1-D and 2-D mask based from comparisons
         mask_violation = swarm.current_violation < swarm.pbest_violation
         mask_pos = np.repeat(mask_violation[:, np.newaxis], dimensions, axis=1)
         # Apply masks
-        new_pbest_pos = np.where(~mask_pos, swarm.pbest_violation_pos, swarm.position)
+        new_pbest_pos = np.where(
+            ~mask_pos, swarm.pbest_violation_pos, swarm.position
+        )
         new_pbest_violation = np.where(
             ~mask_violation, swarm.pbest_violation, swarm.current_violation
         )
     except AttributeError:
         rep.logger.exception(
-            "Please pass a ConstrainedSwarm class. You passed {}".format(type(swarm))
+            "Please pass a ConstrainedSwarm class. You passed {}".format(
+                type(swarm)
+            )
         )
         raise
     else:

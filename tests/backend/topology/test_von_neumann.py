@@ -41,7 +41,9 @@ class TestVonNeumannTopology(ABCTestTopology):
 
     @pytest.mark.parametrize("r", [0, 1])
     @pytest.mark.parametrize("p", [1, 2])
-    def test_update_gbest_neighborhood_(self, constrained_swarm, topology, p, r):
+    def test_update_gbest_neighborhood_(
+        self, constrained_swarm, topology, p, r
+    ):
         """Test if update_gbest_neighborhood gives the expected return values"""
         topo = topology()
         pos, cost = topo.compute_gbest(constrained_swarm, p=p, r=r)
@@ -59,7 +61,9 @@ class TestVonNeumannTopology(ABCTestTopology):
 
     @pytest.mark.parametrize("r", [0, 1])
     @pytest.mark.parametrize("p", [1, 2])
-    def test_update_gbest_violation_neighborhood(self, constrained_swarm, topology, p, r):
+    def test_update_gbest_violation_neighborhood(
+        self, constrained_swarm, topology, p, r
+    ):
         """Test if update_gbest_neighborhood gives the expected return values"""
         topo = topology()
         pos, cost = topo.compute_gbest_violation(constrained_swarm, p=p, r=r)

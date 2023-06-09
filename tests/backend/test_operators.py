@@ -21,20 +21,21 @@ class TestComputePbest(object):
         pos, cost = P.compute_pbest(swarm)
         assert (pos == expected_pos).all()
         assert (cost == expected_cost).all()
-        
+
     def test_return_values_(self, constrained_swarm):
         """Test if method gives the expected return values"""
         expected_cost = np.array([1, 2, 2])
         expected_pos = np.array([[1, 2, 3], [4, 5, 6], [1, 1, 1]])
         pos, cost = P.compute_pbest(constrained_swarm)
         assert (pos == expected_pos).all()
-        assert (cost == expected_cost).all()    
+        assert (cost == expected_cost).all()
 
     @pytest.mark.parametrize("swarm", [0, (1, 2, 3)])
     def test_input_swarm(self, swarm):
         """Test if method raises AttributeError with wrong swarm"""
         with pytest.raises(AttributeError):
             P.compute_pbest(swarm)
+
 
 class TestComputePbestViolation(object):
     """Test suite for compute_pbest_violation()"""
@@ -52,6 +53,7 @@ class TestComputePbestViolation(object):
         """Test if method raises AttributeError with wrong swarm"""
         with pytest.raises(AttributeError):
             P.compute_pbest(constrained_swarm)
+
 
 class TestComputeVelocity(object):
     """Test suite for compute_velocity()"""
@@ -83,7 +85,7 @@ class TestComputeVelocity(object):
         vh = VelocityHandler(strategy=vh_strat)
         with pytest.raises(AttributeError):
             P.compute_velocity(swarm, clamp=(0, 1), vh=vh)
-            
+
     @pytest.mark.parametrize("constrained_swarm", [0, (1, 2, 3)])
     @pytest.mark.parametrize(
         "vh_strat", ["unmodified", "zero", "invert", "adjust"]
@@ -93,7 +95,6 @@ class TestComputeVelocity(object):
         vh = VelocityHandler(strategy=vh_strat)
         with pytest.raises(AttributeError):
             P.compute_velocity(constrained_swarm, clamp=(0, 1), vh=vh)
-
 
     @pytest.mark.parametrize("options", [{"c1": 0.5, "c2": 0.3}])
     @pytest.mark.parametrize(
@@ -118,6 +119,7 @@ class TestComputeVelocity(object):
             constrained_swarm.options = options
             clamp = (0, 1)
             P.compute_velocity(constrained_swarm, clamp, vh)
+
 
 class TestComputePosition(object):
     """Test suite for compute_position()"""
@@ -146,7 +148,7 @@ class TestComputePosition(object):
         p = P.compute_position(constrained_swarm, bounds, bh)
         assert p.shape == constrained_swarm.velocity.shape
         if bounds is not None:
-            assert (bounds[0] <= p).all() and (bounds[1] >= p).all()   
+            assert (bounds[0] <= p).all() and (bounds[1] >= p).all()
 
     @pytest.mark.parametrize("swarm", [0, (1, 2, 3)])
     @pytest.mark.parametrize(
@@ -166,4 +168,6 @@ class TestComputePosition(object):
         """Test if method raises AttributeError with wrong swarm"""
         bh = BoundaryHandler(strategy=bh_strat)
         with pytest.raises(AttributeError):
-            P.compute_position(constrained_swarm, bounds=([-5, -5], [5, 5]), bh=bh)
+            P.compute_position(
+                constrained_swarm, bounds=([-5, -5], [5, 5]), bh=bh
+            )

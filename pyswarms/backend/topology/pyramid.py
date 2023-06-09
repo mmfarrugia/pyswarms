@@ -82,7 +82,8 @@ class Pyramid(Topology):
                         [
                             index_pointer[indices[i] : indices[i + 1]]
                             for i in range(swarm.n_particles)
-                        ], dtype=object
+                        ],
+                        dtype=object,
                     )
 
                 idx_min = np.array(
@@ -108,7 +109,7 @@ class Pyramid(Topology):
             raise
         else:
             return (best_pos, best_cost)
-        
+
     def compute_gbest_violation(self, swarm, **kwargs):
         """Update the global best using a pyramid neighborhood approach
 
@@ -143,7 +144,9 @@ class Pyramid(Topology):
                 self.neighbor_idx = np.tile(
                     np.arange(swarm.n_particles), (swarm.n_particles, 1)
                 )
-                best_violation_pos = swarm.pbest_violation_pos[np.argmin(swarm.pbest_violation)]
+                best_violation_pos = swarm.pbest_violation_pos[
+                    np.argmin(swarm.pbest_violation)
+                ]
                 best_violation = np.min(swarm.pbest_violation)
             else:
                 # Check if the topology is static or dynamic and assign neighbors
@@ -159,7 +162,8 @@ class Pyramid(Topology):
                         [
                             index_pointer[indices[i] : indices[i + 1]]
                             for i in range(swarm.n_particles)
-                        ], dtype=object
+                        ],
+                        dtype=object,
                     )
 
                 idx_min = np.array(
@@ -180,7 +184,9 @@ class Pyramid(Topology):
                 best_violation_pos = swarm.pbest_violation_pos[best_neighbor]
         except AttributeError:
             self.rep.logger.exception(
-                "Please pass a ConstrainedSwarm class. You passed {}".format(type(swarm))
+                "Please pass a ConstrainedSwarm class. You passed {}".format(
+                    type(swarm)
+                )
             )
             raise
         else:

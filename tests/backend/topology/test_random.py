@@ -94,11 +94,16 @@ class TestRandomTopology(ABCTestTopology):
 
     @pytest.mark.parametrize("static", [True, False])
     @pytest.mark.parametrize("k", [1, 2])
-    def test_compute_neighbors_return_values_(self, constrained_swarm, topology, k, static):
+    def test_compute_neighbors_return_values_(
+        self, constrained_swarm, topology, k, static
+    ):
         """Test if __compute_neighbors() gives the expected shape and symmetry"""
         topo = topology(static=static)
         adj_matrix = topo._Random__compute_neighbors(constrained_swarm, k=k)
-        assert adj_matrix.shape == (constrained_swarm.n_particles, constrained_swarm.n_particles)
+        assert adj_matrix.shape == (
+            constrained_swarm.n_particles,
+            constrained_swarm.n_particles,
+        )
         assert np.allclose(
             adj_matrix, adj_matrix.T, atol=1e-8
         )  # Symmetry test

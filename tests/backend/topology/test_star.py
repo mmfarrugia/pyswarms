@@ -33,7 +33,9 @@ class TestStarTopology(ABCTestTopology):
         assert cost == pytest.approx(expected_cost)
         assert pos == pytest.approx(expected_pos)
 
-    def test_compute_gbest_return_values_(self, constrained_swarm, options, topology):
+    def test_compute_gbest_return_values_(
+        self, constrained_swarm, options, topology
+    ):
         """Test if compute_gbest() gives the expected return values"""
         topo = topology()
         expected_cost = 1.0002528364353296
@@ -44,7 +46,9 @@ class TestStarTopology(ABCTestTopology):
         assert cost == pytest.approx(expected_cost)
         assert pos == pytest.approx(expected_pos)
 
-    def test_compute_gbest_violation_return_values(self, constrained_swarm, options, topology):
+    def test_compute_gbest_violation_return_values(
+        self, constrained_swarm, options, topology
+    ):
         """Test if compute_gbest() gives the expected return values"""
         topo = topology()
         expected_cost = -6.0
@@ -54,4 +58,3 @@ class TestStarTopology(ABCTestTopology):
         pos, cost = topo.compute_gbest_violation(constrained_swarm, **options)
         assert cost == pytest.approx(expected_cost)
         assert pos == pytest.approx(expected_pos)
-

@@ -67,7 +67,7 @@ def ackley(x):
 
     d = x.shape[1]
     j = (
-        -20.0 * np.exp(-0.2 * np.sqrt((1 / d) * (x ** 2).sum(axis=1)))
+        -20.0 * np.exp(-0.2 * np.sqrt((1 / d) * (x**2).sum(axis=1)))
         - np.exp((1 / float(d)) * np.cos(2 * np.pi * x).sum(axis=1))
         + 20.0
         + np.exp(1)
@@ -112,8 +112,8 @@ def beale(x):
     y_ = x[:, 1]
     j = (
         (1.5 - x_ + x_ * y_) ** 2.0
-        + (2.25 - x_ + x_ * y_ ** 2.0) ** 2.0
-        + (2.625 - x_ + x_ * y_ ** 3.0) ** 2.0
+        + (2.25 - x_ + x_ * y_**2.0) ** 2.0
+        + (2.625 - x_ + x_ * y_**3.0) ** 2.0
     )
 
     return j
@@ -198,7 +198,7 @@ def bukin6(x):
 
     x_ = x[:, 0]
     y_ = x[:, 1]
-    j = 100 * np.sqrt(np.absolute(y_ - 0.01 * x_ ** 2.0)) + 0.01 * np.absolute(
+    j = 100 * np.sqrt(np.absolute(y_ - 0.01 * x_**2.0)) + 0.01 * np.absolute(
         x_ + 10
     )
 
@@ -250,7 +250,7 @@ def crossintray(x):
         np.abs(
             np.sin(x_)
             * np.sin(y_)
-            * np.exp(np.abs(100 - (np.sqrt(x_ ** 2 + y_ ** 2) / np.pi)))
+            * np.exp(np.abs(100 - (np.sqrt(x_**2 + y_**2) / np.pi)))
         )
         + 1,
         0.1,
@@ -398,10 +398,10 @@ def goldstein(x):
         * (
             19
             - 14 * x_
-            + 3 * x_ ** 2.0
+            + 3 * x_**2.0
             - 14 * y_
             + 6 * x_ * y_
-            + 3 * y_ ** 2.0
+            + 3 * y_**2.0
         )
     ) * (
         30
@@ -409,10 +409,10 @@ def goldstein(x):
         * (
             18
             - 32 * x_
-            + 12 * x_ ** 2.0
+            + 12 * x_**2.0
             + 48 * y_
             - 36 * x_ * y_
-            + 27 * y_ ** 2.0
+            + 27 * y_**2.0
         )
     )
 
@@ -460,7 +460,7 @@ def himmelblau(x):
     x_ = x[:, 0]
     y_ = x[:, 1]
 
-    j = (x_ ** 2 + y_ - 11) ** 2 + (x_ + y_ ** 2 - 7) ** 2
+    j = (x_**2 + y_ - 11) ** 2 + (x_ + y_**2 - 7) ** 2
 
     return j
 
@@ -509,7 +509,7 @@ def holdertable(x):
     j = -np.abs(
         np.sin(x_)
         * np.cos(y_)
-        * np.exp(np.abs(1 - np.sqrt(x_ ** 2 + y_ ** 2) / np.pi))
+        * np.exp(np.abs(1 - np.sqrt(x_**2 + y_**2) / np.pi))
     )
 
     return j
@@ -589,11 +589,12 @@ def matyas(x):
 
     x_ = x[:, 0]
     y_ = x[:, 1]
-    j = 0.26 * (x_ ** 2.0 + y_ ** 2.0) - 0.48 * x_ * y_
+    j = 0.26 * (x_**2.0 + y_**2.0) - 0.48 * x_ * y_
 
     return j
 
-def n_disk_constraint(x, r=1.):
+
+def n_disk_constraint(x, r=1.0):
     """n-dimensional disk constraint function.
 
     Has a global minimum at :code:`f(0,0,...,0)` with a search
@@ -620,6 +621,7 @@ def n_disk_constraint(x, r=1.):
     diff = np.abs(x) - r
     d = [max(row) for row in diff]
     return d
+
 
 def rastrigin(x):
     """Rastrigin objective function.
@@ -649,7 +651,7 @@ def rastrigin(x):
         )
 
     d = x.shape[1]
-    j = 10.0 * d + (x ** 2.0 - 10.0 * np.cos(2.0 * np.pi * x)).sum(axis=1)
+    j = 10.0 * d + (x**2.0 - 10.0 * np.cos(2.0 * np.pi * x)).sum(axis=1)
 
     return j
 
@@ -718,8 +720,8 @@ def schaffer2(x):
     x_ = x[:, 0]
     y_ = x[:, 1]
     j = 0.5 + (
-        (np.sin(x_ ** 2.0 - y_ ** 2.0) ** 2.0 - 0.5)
-        / ((1 + 0.001 * (x_ ** 2.0 + y_ ** 2.0)) ** 2.0)
+        (np.sin(x_**2.0 - y_**2.0) ** 2.0 - 0.5)
+        / ((1 + 0.001 * (x_**2.0 + y_**2.0)) ** 2.0)
     )
 
     return j
@@ -741,7 +743,7 @@ def sphere(x):
     numpy.ndarray
         computed cost of size :code:`(n_particles, )`
     """
-    j = (x ** 2.0).sum(axis=1)
+    j = (x**2.0).sum(axis=1)
 
     return j
 
@@ -786,9 +788,10 @@ def threehump(x):
     x_ = x[:, 0]
     y_ = x[:, 1]
 
-    j = 2 * x_ ** 2 - 1.05 * (x_ ** 4) + (x_ ** 6) / 6 + x_ * y_ + y_ ** 2
+    j = 2 * x_**2 - 1.05 * (x_**4) + (x_**6) / 6 + x_ * y_ + y_**2
 
     return j
+
 
 def zeroTest(x):
     """Dummy constraint function for testing
@@ -808,6 +811,7 @@ def zeroTest(x):
         zero cost of size :code:`(n_particles, )`
     """
     return np.zeros(len(x))
+
 
 def zeroTestWithArgs(x, a, b):
     """Dummy constraint function for testing

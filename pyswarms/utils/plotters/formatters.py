@@ -196,7 +196,6 @@ class Mesher(object):
             iter_r = []
             # Iterate over iterations
             for i in range(len(pos_history)):
-
                 # Parallelize particles
                 r_map_split = pool.map(
                     self.func,

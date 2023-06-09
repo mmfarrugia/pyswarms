@@ -89,7 +89,7 @@ class Ring(Topology):
             raise
         else:
             return (best_pos, best_cost)
-        
+
     def compute_gbest_violation(self, swarm, p, k, **kwargs):
         """Update the global best using a ring-like neighborhood approach
 
@@ -130,7 +130,9 @@ class Ring(Topology):
                 self.neighbor_idx = self.neighbor_idx[:, np.newaxis]
                 best_neighbor = np.arange(swarm.n_particles)
             else:
-                idx_min = swarm.pbest_violation[self.neighbor_idx].argmin(axis=1)
+                idx_min = swarm.pbest_violation[self.neighbor_idx].argmin(
+                    axis=1
+                )
                 best_neighbor = self.neighbor_idx[
                     np.arange(len(self.neighbor_idx)), idx_min
                 ]
@@ -139,7 +141,9 @@ class Ring(Topology):
             best_violation_pos = swarm.pbest_violation_pos[best_neighbor]
         except AttributeError:
             self.rep.logger.exception(
-                "Please pass a ConstrainedSwarm class. You passed {}".format(type(swarm))
+                "Please pass a ConstrainedSwarm class. You passed {}".format(
+                    type(swarm)
+                )
             )
             raise
         else:

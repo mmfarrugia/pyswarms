@@ -120,13 +120,14 @@ class Swarm(object):
     def pbest_pos_default(self):
         return self.position
 
+
 @attrs
 class ConstrainedSwarm(Swarm):
     """ConstrainedSwarm Class
 
     This class offers a swarm that can be used for epsilon-constrained optimization.
     It extends upon the commonly-used attributes of the Swarm class, adding variables
-    to track constraint violation and to hold current per-particle epsilon-switched 
+    to track constraint violation and to hold current per-particle epsilon-switched
     cost/violation values merged into singular arrays.
 
     To initialize this class, **simply supply values for the position and
@@ -217,8 +218,11 @@ class ConstrainedSwarm(Swarm):
         the current values (cost if constraints satisfied, else violation) found by the swarm of
         shape :code:`(n_particles, dimensions)`
     """
-    #violation are constraint cost values
-    pbest_violation_pos = attrib(type=np.ndarray, validator=instance_of(np.ndarray))
+
+    # violation are constraint cost values
+    pbest_violation_pos = attrib(
+        type=np.ndarray, validator=instance_of(np.ndarray)
+    )
     pbest_violation = attrib(
         type=np.ndarray,
         default=np.array([]),
@@ -237,7 +241,7 @@ class ConstrainedSwarm(Swarm):
         default=np.array([]),
         validator=instance_of(np.ndarray),
     )
-    #merged are the merged costs
+    # merged are the merged costs
     current_merged = attrib(
         type=np.ndarray,
         default=np.array([]),
@@ -258,7 +262,7 @@ class ConstrainedSwarm(Swarm):
         default=np.array([]),
         validator=instance_of(np.ndarray),
     )
-    #merged are the merged costs
+    # merged are the merged costs
     pbest_merged_pos = attrib(
         type=np.ndarray,
         default=np.array([]),
@@ -268,5 +272,3 @@ class ConstrainedSwarm(Swarm):
     @pbest_violation_pos.default
     def pbest_violation_pos_default(self):
         return self.position
-
-

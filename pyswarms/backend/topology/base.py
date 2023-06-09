@@ -42,7 +42,7 @@ class Topology(abc.ABC):
         """Compute the best particle of the swarm and return the cost and
         position"""
         raise NotImplementedError("Topology::compute_gbest()")
-    
+
     @abc.abstractmethod
     def compute_gbest_violation(self, swarm):
         """Compute the best particle of the swarm and return the cost and

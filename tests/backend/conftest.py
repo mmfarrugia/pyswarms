@@ -27,6 +27,7 @@ def swarm():
     }
     return Swarm(**attrs_at_t)
 
+
 @pytest.fixture
 def constrained_swarm():
     """A contrived instance of the ConstrainedSwarm class at a certain timestep"""
@@ -40,7 +41,9 @@ def constrained_swarm():
         "pbest_violation": np.array([11, 12, 13]),
         "pbest_merged": np.array([21, 22, 23]),
         "pbest_pos": np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]),
-        "pbest_violation_pos": np.array([[11, 12, 13], [14, 15, 16], [17, 18, 19]]),
+        "pbest_violation_pos": np.array(
+            [[11, 12, 13], [14, 15, 16], [17, 18, 19]]
+        ),
         "pbest_merged_pos": np.array([[1, 2, 3], [24, 25, 26], [7, 8, 9]]),
         "best_cost": 1,
         "best_violation": 0,
