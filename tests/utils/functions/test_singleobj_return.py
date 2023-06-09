@@ -123,6 +123,9 @@ def test_matyas_output(common_minima):
     """Test matyas function output."""
     assert np.isclose(fx.matyas(common_minima), np.zeros(3)).all()
 
+def test_n_disk_output(common_minima):
+    """Test n-disk constraint function output."""
+    assert np.isclose(fx.n_disk_constraint(common_minima), np.ones(3)*(-1)).all()
 
 def test_rastrigin_output(common_minima):
     """Tests rastrigin function output."""
@@ -149,3 +152,11 @@ def test_sphere_output(common_minima):
 def test_threehump_output(common_minima):
     """Tests threehump function output."""
     assert np.array_equal(fx.threehump(common_minima), np.zeros(3))
+
+def test_zeroTest_output(common_minima):
+    """Tests zeroTest function output."""
+    assert np.array_equal(fx.zeroTest(common_minima), np.zeros(3))
+
+def test_zeroTestWithArgs_output(common_minima):
+    """Tests zeroTestWithArgs function output."""
+    assert np.array_equal(fx.zeroTestWithArgs(common_minima, 0, 0), np.zeros(3))

@@ -619,7 +619,7 @@ def n_disk_constraint(x, r=1.0):
         domain
     """
     diff = np.abs(x) - r
-    d = [max(row) for row in diff]
+    d = np.array([max(row) for row in diff])
     return d
 
 

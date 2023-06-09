@@ -66,6 +66,9 @@ def test_levi_output_size(common_minima, targetdim):
     """Test levi output size."""
     assert fx.levi(common_minima).shape == targetdim
 
+def test_n_disk_output_size(common_minima, targetdim):
+    """Test levi output size."""
+    assert fx.n_disk_constraint(common_minima, r=1).shape == targetdim
 
 def test_rastrigin_output_size(common_minima, targetdim):
     """Tests rastrigin output size."""
@@ -90,3 +93,11 @@ def test_sphere_output_size(common_minima, targetdim):
 def test_threehump_output_size(common_minima, targetdim):
     """Test threehump output size."""
     assert fx.threehump(common_minima).shape == targetdim
+    
+def test_zeroTest_output_size(common_minima, targetdim):
+    """Test zeroTest output size."""
+    assert fx.zeroTest(common_minima).shape == targetdim    
+
+def test_zeroTestWithArgs_output_size(common_minima, targetdim):
+    """Test zeroTestWithArgs output size."""
+    assert fx.zeroTestWithArgs(common_minima, 0, 0).shape == targetdim 
