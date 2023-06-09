@@ -116,6 +116,9 @@ class SwarmOptimizer(abc.ABC):
                 "best_cost",
                 "mean_pbest_cost",
                 "mean_neighbor_cost",
+                "best_violation",
+                "mean_pbest_violation",
+                "mean_neighbor_violation",
                 "position",
                 "velocity",
             ],
@@ -138,8 +141,12 @@ class SwarmOptimizer(abc.ABC):
             Must be of the same type as self.ToHistory
         """
         self.cost_history.append(hist.best_cost)
+        self.violation_history.append(hist.best_violation)
         self.mean_pbest_history.append(hist.mean_pbest_cost)
+        self.mean_pbest_violation_history.append(hist.mean_pbest_violation)
         self.mean_neighbor_history.append(hist.mean_neighbor_cost)
+        self.mean_neighbor_violation_history.append(
+            hist.mean_neighbor_violation)
         self.pos_history.append(hist.position)
         self.velocity_history.append(hist.velocity)
 
@@ -195,8 +202,11 @@ class SwarmOptimizer(abc.ABC):
         """
         # Initialize history lists
         self.cost_history = []
+        self.violation_history = []
         self.mean_pbest_history = []
+        self.mean_pbest_violation_history = []
         self.mean_neighbor_history = []
+        self.mean_neighbor_violation_history = []
         self.pos_history = []
         self.velocity_history = []
 

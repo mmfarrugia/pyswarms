@@ -7,7 +7,7 @@ import numpy as np
 from pyswarms.backend.generators import generate_swarm
 
 # Import from pyswarms
-from pyswarms.double.constrained_optimizer import ConstrainedOptimizerPSO
+from pyswarms.constrained.constrained_optimizer import ConstrainedOptimizerPSO
 from pyswarms.utils.functions.single_obj import himmelblau, sphere, zeroTest, rosenbrock, n_disk_constraint
 
 from .abc_test_constrained_optimizer import ABCTestConstrainedOptimizer
